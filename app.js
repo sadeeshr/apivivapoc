@@ -3,7 +3,6 @@ const httpServer = require('http').createServer(app).listen(8080) // HTTP
 const bodyParser = require('body-parser')
 const builder = require('xmlbuilder');
 const util = require('util');
-const request = require('request');
 const got = require('got');
 
 const baseUrl = "https://labtest.gofrugal.com/call_center/cloudCall.php"
@@ -114,7 +113,7 @@ function execAPI(url, cb) {
             console.log("RES", body);
             handleResponseCode(body, res => cb(res))
         } catch (error) {
-            console.log("ERR", error.response.body);
+            console.log("ERR", error);
         }
     })();
 }
@@ -137,7 +136,7 @@ function handleResponseCode(data = "", cb) {
 }
 
 function handleResponse(data = "", cb) {
-    const [cmd = "", param = ""] = res.split("=")
+    const [cmd = "", param = ""] = data.split("=")
     switch (cmd) {
         case "dial":
             dialResponseFeeder(param, res => cb(res))
