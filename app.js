@@ -17,10 +17,15 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.post('/api/system', function (req, res) {
     console.log(req.body);
     dialPlanHandler(req, function (result) {
-        // console.log(result);
         res.send(result);
     });
 
+});
+
+app.post('/api/cdr', function (req, res) {
+    cdrHandler(req, function (result) {
+        res.sendStatus(result);
+    });
 });
 
 function dialPlanHandler(req, cb) {
@@ -90,6 +95,16 @@ function dialPlanHandler(req, cb) {
             });
             break;
     }
+}
+
+function cdrHandler(req, cb) {
+    const { body } = req
+    const { variables: cdr } = body
+    console.log(cdr);
+
+    const UUID = cdr["call-uuid"]
+    cb(200)
+
 }
 
 function toXML(data, cb) {
