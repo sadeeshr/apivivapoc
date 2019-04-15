@@ -51,6 +51,7 @@ function dialPlanHandler(req, cb) {
                     const direction = (body["Call-Direction"] === "inbound") ? "IC" : "OC"
                     const caller = body["Caller-Caller-ID-Number"]
                     const called = body["Caller-Destination-Number"]
+                    const context = body["Caller-Context"]
 
                     let dialplan = {
                         "document": {
@@ -59,7 +60,7 @@ function dialPlanHandler(req, cb) {
                                 "@name": "dialplan",
                                 "@description": "Dial Plan",
                                 "context": {
-                                    "@name": "default",
+                                    "@name": context,
                                     "extension": []
                                 }
                             }
