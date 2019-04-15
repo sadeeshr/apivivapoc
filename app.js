@@ -24,6 +24,8 @@ app.post('/api/system', function (req, res) {
 });
 
 function dialPlanHandler(req, cb) {
+    const { body } = req
+    const { section } = body
     const notFound = {
         "document": {
             "@type": "freeswitch/xml",
@@ -35,10 +37,15 @@ function dialPlanHandler(req, cb) {
             }
         }
     }
-    switch (req.body.section) {
+    switch (section) {
         case "dialplan":
             {
-                if (req.body['Event-Calling-Function'] === "dialplan_xml_locate") {
+                if (body['Event-Calling-Function'] === "dialplan_xml_locate") {
+                    const UUID = body["Channel-Call-UUID"]
+                    const direction = (body["Call-Direction"] === "inbound") ? "IC" : "OC"
+                    const caller = body["Caller-Caller-ID-Number"]
+                    const called = body["Caller-Destination-Number"]
+
                     let dialplan = {
                         "document": {
                             "@type": "freeswitch/xml",
@@ -61,7 +68,8 @@ function dialPlanHandler(req, cb) {
                             "action": []
                         }
                     }
-                    let url = `${baseUrl}?caller=${testVoice}&transactionid=abcd1234&called=9876543210&call_type=IC&location=tamilnadu&pin=1`
+                    // let url = `${baseUrl}?caller=${caller}&transactionid=${UUID}&called=${called}&call_type=${direction}&location=tamilnadu&pin=1`
+                    let url = `${baseUrl}?caller=${testVoice}&transactionid=${UUID}&called=${called}&call_type=${direction}&location=tamilnadu&pin=1`
                     execAPI(url, action => {
                         extension.condition.action = action;
                         dialplan.document.section.context.extension = extension;
