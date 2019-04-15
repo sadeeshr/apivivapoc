@@ -74,8 +74,8 @@ function dialPlanHandler(req, cb) {
                             "action": []
                         }
                     }
-                    let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${called}&call_type=${direction}&location=tamilnadu&pin=1`
-                    // let url = `${baseUrl}?caller=${testVoice}&transactionid=${uuid}&called=${called}&call_type=${direction}&location=tamilnadu&pin=1`
+                    // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${called}&call_type=${direction}&location=tamilnadu&pin=1`
+                    let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&call_type=${direction}&location=tamilnadu&pin=1`
                     execAPI(url, action => {
                         extension.condition.action = action;
                         dialplan.document.section.context.extension = extension;
@@ -104,7 +104,8 @@ function cdrHandler(req, cb) {
     console.log(cdr);
 
     const { call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, progresssec: ringtime, duration } = cdr
-    let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
+    // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
+    let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
     execAPI(url, res => {
         console.log(res)
         cb(200)
@@ -208,6 +209,4 @@ function voiceResponseFeeder(data = "", cb) {
     cb(actions)
 }
 
-// let testURL = `${baseUrl}?caller=1234567890&transactionid=abcd1234&called=9876543210&call_type=incoming&location=tamilnadu`
-// execAPI(testURL)
 
