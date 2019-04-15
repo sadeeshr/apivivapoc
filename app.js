@@ -102,8 +102,12 @@ function cdrHandler(req, cb) {
     const { variables: cdr } = body
     console.log(cdr);
 
-    const UUID = cdr["call-uuid"]
-    cb(200)
+    const { call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, progresssec: ringtime, duration } = cdr
+    let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
+    execAPI(url, res => {
+        console.log(res)
+        cb(200)
+    })
 
 }
 
