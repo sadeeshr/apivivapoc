@@ -153,13 +153,19 @@ function handleResponseCode(data = "", cb) {
 
     switch (code) {
         case "200":
+        case "201":
+        case "202":
+        case "203":
         case "204":
+        case "300":
+        case "301":
             {
                 handleResponse(action, res => cb(res))
                 break;
             }
 
         default:
+            cb(generateAction("hangup"))
             break;
     }
 }
