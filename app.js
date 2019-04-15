@@ -10,6 +10,7 @@ const headers = { 'X-Api-Key': "e72bb2cb-4003-4e93-ba6a-abaf59a2615b" }
 
 const testVoice = "1234567890"
 const testDial = "9629845692"
+const gateway = "VIVA"
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -46,7 +47,7 @@ function dialPlanHandler(req, cb) {
         case "dialplan":
             {
                 if (body['Event-Calling-Function'] === "dialplan_xml_locate") {
-                    const UUID = body["Channel-Call-UUID"]
+                    const uuid = body["Channel-Call-UUID"]
                     const direction = (body["Call-Direction"] === "inbound") ? "IC" : "OC"
                     const caller = body["Caller-Caller-ID-Number"]
                     const called = body["Caller-Destination-Number"]
@@ -73,8 +74,8 @@ function dialPlanHandler(req, cb) {
                             "action": []
                         }
                     }
-                    // let url = `${baseUrl}?caller=${caller}&transactionid=${UUID}&called=${called}&call_type=${direction}&location=tamilnadu&pin=1`
-                    let url = `${baseUrl}?caller=${testVoice}&transactionid=${UUID}&called=${called}&call_type=${direction}&location=tamilnadu&pin=1`
+                    let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${called}&call_type=${direction}&location=tamilnadu&pin=1`
+                    // let url = `${baseUrl}?caller=${testVoice}&transactionid=${uuid}&called=${called}&call_type=${direction}&location=tamilnadu&pin=1`
                     execAPI(url, action => {
                         extension.condition.action = action;
                         dialplan.document.section.context.extension = extension;
@@ -178,7 +179,7 @@ function handleResponse(data = "", cb) {
 
 function dialResponseFeeder(data = "", cb) {
     let phone = data.split(",")
-    let destination = phone.map(num => `sofia/gateway/gwname/${num}`)
+    let destination = phone.map(num => `sofia/gateway/${gateway}/${num}`)
     let actions = []
 
     actions.push(generateAction("pre_answer"))
