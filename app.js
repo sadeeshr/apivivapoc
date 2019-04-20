@@ -214,6 +214,8 @@ function ivrResponseFeeder(voiceMessage, keyPressValue, cb) {
 
     actions.push(generateAction("answer"))
     actions.push(generateAction("play_and_get_digits", data));
+    actions.push(generateAction("sleep", "1000"));
+    actions.push(generateAction("hangup"))
     cb(actions)
     // <action application="" data="2 5 3 7000 # $${base_dir}/sounds/en/us/callie/conference/8000/conf-pin.wav /invalid.wav foobar \d+"/>
     // <action application="log" data="CRIT ${foobar}"/>
