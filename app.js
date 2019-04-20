@@ -151,7 +151,7 @@ function execAPI(url, cb) {
 
 function handleResponseCode(data = "", cb) {
     const response = Object.assign({}, ...data.split("|").map(i => i.includes("=") ? ({ [i.split("=")[0]]: i.split("=")[1] }) : ({ code: i })))
-    const { code, dial, voiceMessage, keyPress, keyPressValue, purpose } = response
+    const { code, dial, voiceMessage, keyPress, keyPressValue = "", purpose } = response
     switch (code) {
         case "200":
             dialResponseFeeder(dial, res => cb(res))
@@ -167,7 +167,7 @@ function handleResponseCode(data = "", cb) {
         case "300":
         case "301":
             // voiceResponseFeeder(voiceMessage, res => cb(res))
-            ivrResponseFeeder(voiceMessage, keyPressValue = "", res => cb(res))
+            ivrResponseFeeder(voiceMessage, keyPressValue, res => cb(res))
             break;
         default:
             cb(generateAction("hangup"))
