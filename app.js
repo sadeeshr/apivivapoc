@@ -84,11 +84,13 @@ function dialPlanHandler(req, cb) {
                     let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&call_type=${direction}&location=tamilnadu&pin=1`
                     if (dtmf)
                         url += `&purpose=${purpose}&keypress=${dtmf}`
-                    if (purpose && !dtmf)
-                        toXML(generateAction("hangup"), function (result) {
-                            cb(result);
+                    if (purpose && !dtmf) {
+                        extension.condition.action = generateAction("hangup");
+                        dialplan.document.section.context.extension = extension;
+                        toXML(dialplan, function (xmlResult) {
+                            cb(xmlResult);
                         });
-                    else
+                    } else
                         execAPI(url, action => {
                             extension.condition.action = action;
                             dialplan.document.section.context.extension = extension;
