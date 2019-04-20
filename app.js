@@ -53,6 +53,10 @@ function dialPlanHandler(req, cb) {
                     const caller = body["Caller-Caller-ID-Number"]
                     const called = body["Caller-Destination-Number"]
                     const context = body["Caller-Context"]
+                    const dtmf = body["variable_key_press"]
+                    const purpose = body["variable_ivr_purpose"]
+
+                    console.log(dtmf, purpose);
 
                     let dialplan = {
                         "document": {
@@ -78,13 +82,20 @@ function dialPlanHandler(req, cb) {
                     }
                     // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${called}&call_type=${direction}&location=tamilnadu&pin=1`
                     let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&call_type=${direction}&location=tamilnadu&pin=1`
-                    execAPI(url, action => {
-                        extension.condition.action = action;
-                        dialplan.document.section.context.extension = extension;
-                        toXML(dialplan, function (xmlResult) {
-                            cb(xmlResult);
+                    if (dtmf)
+                        url += `&purpose=${purpose}&keypress=${dtmf}`
+                    if (purpose && !dtmf)
+                        toXML(generateAction("hangup"), function (result) {
+                            cb(result);
                         });
-                    })
+                    else
+                        execAPI(url, action => {
+                            extension.condition.action = action;
+                            dialplan.document.section.context.extension = extension;
+                            toXML(dialplan, function (xmlResult) {
+                                cb(xmlResult);
+                            });
+                        })
                 } else {
                     toXML(notFound, function (result) {
                         cb(result);
@@ -151,7 +162,7 @@ function execAPI(url, cb) {
 
 function handleResponseCode(data = "", cb) {
     const response = Object.assign({}, ...data.split("|").map(i => i.includes("=") ? ({ [i.split("=")[0]]: i.split("=")[1] }) : ({ code: i })))
-    const { code, dial, voiceMessage, keyPress, keyPressValue = "", purpose } = response
+    const { code, dial, voiceMessage, keyPress, keyPressValue, purpose } = response
     switch (code) {
         case "200":
             dialResponseFeeder(dial, res => cb(res))
@@ -167,7 +178,8 @@ function handleResponseCode(data = "", cb) {
         case "300":
         case "301":
             // voiceResponseFeeder(voiceMessage, res => cb(res))
-            ivrResponseFeeder(voiceMessage, keyPressValue, res => cb(res))
+            ivrResponseFeeder(voiceMessage, "1-2", "unknown_call_transfer", res => cb(res))
+            // ivrResponseFeeder(voiceMessage, keyPressValue, purpose, res => cb(res))
             break;
         default:
             cb(generateAction("hangup"))
@@ -207,18 +219,19 @@ function voiceResponseFeeder(data = "", cb) {
     cb(actions)
 }
 
-function ivrResponseFeeder(voiceMessage, keyPressValue, cb) {
+function ivrResponseFeeder(voiceMessage, keyPressValue, purpose, cb) {
     let actions = []
     let invalid = "ivr/ivr-that_was_an_invalid_entry.wav"
-    let data = `1 1 3 3000 # ${voiceMessage} ${invalid} keyPress [1-2]`
+    let data = `1 1 3 3000 # ${voiceMessage} ${invalid} key_press [${keyPressValue}]`
 
     actions.push(generateAction("answer"))
+    actions.push(generateAction("set", `ivr_purpose=${purpose}`));
     actions.push(generateAction("play_and_get_digits", data));
     actions.push(generateAction("sleep", "1000"));
-    actions.push(generateAction("hangup"))
+    actions.push(generateAction("transfer", "$1 XML default"))
+    // actions.push(generateAction("hangup"))    
+
     cb(actions)
-    // <action application="" data="2 5 3 7000 # $${base_dir}/sounds/en/us/callie/conference/8000/conf-pin.wav /invalid.wav foobar \d+"/>
-    // <action application="log" data="CRIT ${foobar}"/>
 }
 // simualtion
 // let url = `${baseUrl}?caller=${"1234567890"}&transactionid=abcd1234&called=${"9876543210"}&call_type=IC&location=tamilnadu&pin=1&purpose=unknown_call_transfer`
