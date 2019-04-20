@@ -211,6 +211,8 @@ function ivrResponseFeeder(voiceMessage, keyPressValue, cb) {
     let actions = []
     let invalid = "ivr/ivr-that_was_an_invalid_entry.wav"
     let data = `1 1 3 3000 # ${voiceMessage} ${invalid} keyPress [1-2]`
+
+    actions.push(generateAction("answer"))
     actions.push(generateAction("play_and_get_digits", data));
     cb(actions)
     // <action application="" data="2 5 3 7000 # $${base_dir}/sounds/en/us/callie/conference/8000/conf-pin.wav /invalid.wav foobar \d+"/>
