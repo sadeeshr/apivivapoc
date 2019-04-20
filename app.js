@@ -8,6 +8,7 @@ const got = require('got');
 const baseUrl = "https://labtest.gofrugal.com/call_center/cloudCall.php"
 const headers = { 'X-Api-Key': "e72bb2cb-4003-4e93-ba6a-abaf59a2615b" }
 
+const welcomeMessage = "https://download.gofrugal.com/ivr/AudioFiles/welcome-to-gft-I.wav"
 const testVoice = "1234567890"
 const testDial = "9629845692"
 const gateway = "VIVA"
@@ -116,7 +117,7 @@ function cdrHandler(req, cb) {
 
 function toXML(data, cb) {
     console.log("to xml data: ");
-    console.log(util.inspect(data, false, null))
+    console.log(util.inspect(data, false, null, true))
 
     var feed = builder.create(data, { encoding: 'utf-8' });
     var result = feed.end({ pretty: true });
@@ -149,41 +150,31 @@ function execAPI(url, cb) {
 }
 
 function handleResponseCode(data = "", cb) {
-    const [code = "", action = ""] = data.split("|")
-    console.log(code, action)
-
+    const response = Object.assign({}, ...data.split("|").map(i => i.includes("=") ? ({ [i.split("=")[0]]: i.split("=")[1] }) : ({ code: i })))
+    const { code, dial, voiceMessage, keyPress, keyPressValue, purpose } = response
     switch (code) {
         case "200":
+            dialResponseFeeder(dial, res => cb(res))
+            break;
         case "201":
-        case "202":
-        case "203":
         case "204":
-        case "300":
-        case "301":
             {
-                handleResponse(action, res => cb(res))
                 break;
             }
-
+        case "202":
+        case "203":
+        case "205":
+        case "300":
+        case "301":
+            // voiceResponseFeeder(voiceMessage, res => cb(res))
+            ivrResponseFeeder(voiceMessage, keyPressValue = "", res => cb(res))
+            break;
         default:
             cb(generateAction("hangup"))
             break;
     }
 }
 
-function handleResponse(data = "", cb) {
-    const [cmd = "", param = ""] = data.split("=")
-    switch (cmd) {
-        case "dial":
-            dialResponseFeeder(param, res => cb(res))
-            break;
-        case "voiceMessage":
-            voiceResponseFeeder(param, res => cb(res))
-            break;
-        default:
-            break;
-    }
-}
 
 function dialResponseFeeder(data = "", cb) {
     let phone = data.split(",")
@@ -216,4 +207,19 @@ function voiceResponseFeeder(data = "", cb) {
     cb(actions)
 }
 
+function ivrResponseFeeder(voiceMessage, keyPressValue, cb) {
+    let actions = []
+    let data = `1 1 3 3000 # ${voiceMessage} /invalid.wav keyPress [1-2]`
+    actions.push(generateAction("play_and_get_digits", data));
+    // <action application="" data="2 5 3 7000 # $${base_dir}/sounds/en/us/callie/conference/8000/conf-pin.wav /invalid.wav foobar \d+"/>
+    // <action application="log" data="CRIT ${foobar}"/>
+}
+// simualtion
+// let url = `${baseUrl}?caller=${"1234567890"}&transactionid=abcd1234&called=${"9876543210"}&call_type=IC&location=tamilnadu&pin=1&purpose=unknown_call_transfer`
+// execAPI(url, action => console.log(util.inspect(action, false, null, true)))
 
+// { code: '201',
+//   voiceMessage: 'filename.mp3',
+//   keyPress: 'true',
+//   keyPressValue: '1-3',
+//   purpose: 'unknown_call_transfer' }
