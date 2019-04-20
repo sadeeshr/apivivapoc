@@ -172,6 +172,8 @@ function handleResponseCode(data = "", cb) {
         case "201":
         case "204":
             {
+                // ivrResponseFeeder(voiceMessage, "1-2", "unknown_call_transfer", res => cb(res))
+                ivrResponseFeeder(voiceMessage, keyPressValue, purpose, res => cb(res))
                 break;
             }
         case "202":
@@ -179,9 +181,7 @@ function handleResponseCode(data = "", cb) {
         case "205":
         case "300":
         case "301":
-            // voiceResponseFeeder(voiceMessage, res => cb(res))
-            ivrResponseFeeder(voiceMessage, "1-2", "unknown_call_transfer", res => cb(res))
-            // ivrResponseFeeder(voiceMessage, keyPressValue, purpose, res => cb(res))
+            voiceResponseFeeder(voiceMessage, res => cb(res))
             break;
         default:
             cb(generateAction("hangup"))
@@ -202,8 +202,8 @@ function dialResponseFeeder(data = "", cb) {
     actions.push(generateAction("set", "hangup_after_bridge=true"));
     actions.push(generateAction("set", "continue_on_fail=true"));
     actions.push(generateAction("bridge", destination));
-    actions.push(generateAction("sleep", "1000"));
-    // call transaction api here
+    // actions.push(generateAction("sleep", "1000"));
+    actions.push(generateAction("hangup"))
 
     cb(actions)
 }
@@ -215,8 +215,8 @@ function voiceResponseFeeder(data = "", cb) {
     actions.push(generateAction("set", "hangup_after_bridge=true"));
     actions.push(generateAction("set", "continue_on_fail=true"));
     actions.push(generateAction("playback", data));
-    actions.push(generateAction("sleep", "1000"));
-    // call transaction api here
+    // actions.push(generateAction("sleep", "1000"));
+    actions.push(generateAction("hangup"))
 
     cb(actions)
 }
@@ -229,13 +229,13 @@ function ivrResponseFeeder(voiceMessage, keyPressValue, purpose, cb) {
     actions.push(generateAction("answer"))
     actions.push(generateAction("set", `ivr_purpose=${purpose}`));
     actions.push(generateAction("play_and_get_digits", data));
-    actions.push(generateAction("sleep", "1000"));
+    // actions.push(generateAction("sleep", "1000"));
     actions.push(generateAction("transfer", "$1 XML default"))
     // actions.push(generateAction("hangup"))    
 
     cb(actions)
 }
-// simualtion
+// simulation
 // let url = `${baseUrl}?caller=${"1234567890"}&transactionid=abcd1234&called=${"9876543210"}&call_type=IC&location=tamilnadu&pin=1&purpose=unknown_call_transfer`
 // execAPI(url, action => console.log(util.inspect(action, false, null, true)))
 
