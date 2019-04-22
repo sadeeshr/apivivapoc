@@ -159,7 +159,10 @@ function execAPI(called, url, cb) {
             const response = await got(url, { headers });
             const { body } = response
             console.log("RES", body);
-            if (called) handleResponseCode(called, body, res => cb(res))
+            if (called)
+                handleResponseCode(called, body, res => cb(res))
+            else
+                cb(1)
         } catch (error) {
             console.log("ERR", error);
         }
