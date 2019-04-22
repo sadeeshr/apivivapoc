@@ -5,7 +5,7 @@ const builder = require('xmlbuilder');
 const util = require('util');
 const got = require('got');
 
-const baseUrl = "https://labtest.gofrugal.com/call_center/cloudCall.php"
+const baseUrl = "https://labtest.gofrugal.com/call_center"
 const headers = { 'X-Api-Key': "e72bb2cb-4003-4e93-ba6a-abaf59a2615b" }
 
 const welcomeMessage = "https://download.gofrugal.com/ivr/AudioFiles/welcome-to-gft-I.wav"
@@ -60,6 +60,9 @@ function dialPlanHandler(req, cb) {
                 const purpose = body["variable_ivr_purpose"]
                 const eventFunction = body['Event-Calling-Function']
 
+                let baseFile = "cloudCall.php"
+                if (dtmf) baseFile = "cloudIncomingCall.php"
+
                 if ((eventFunction === "dialplan_xml_locate") && DIDs.includes(called)) {
                     console.log(dtmf, purpose);
                     let dialplan = {
@@ -84,7 +87,7 @@ function dialPlanHandler(req, cb) {
                             "action": []
                         }
                     }
-                    let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${called}&call_type=${direction}&location=tamilnadu&pin=1`
+                    let url = `${baseUrl}/${baseFile}?caller=${caller}&transactionid=${uuid}&called=${called}&call_type=${direction}&location=tamilnadu&pin=1`
                     // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&call_type=${direction}&location=tamilnadu&pin=1`
                     if (dtmf)
                         url += `&purpose=${purpose}&keypress=${dtmf}`
