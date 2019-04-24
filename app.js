@@ -16,6 +16,13 @@ const gateway = "VIVA"
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.get('/api/recording/:id', function (req, res) {
+    const { params } = req
+    const { id } = params
+    const recordingsPath = "/var/lib/freeswitch/recordings/"
+    res.download(`${recordingsPath}${id}.mp3`);
+});
+
 app.post('/api/system', function (req, res) {
     console.log(req.body);
     dialPlanHandler(req, function (result) {
@@ -201,6 +208,9 @@ function dialResponseFeeder(data = "", cb) {
     actions.push(generateAction("set", "call_timeout=30"));
     actions.push(generateAction("set", "hangup_after_bridge=true"));
     actions.push(generateAction("set", "continue_on_fail=true"));
+    actions.push(generateAction("set", "media_bug_answer_req=true"));
+    actions.push(generateAction("record_session", "$${recordings_dir}/${uuid}.mp3"));
+
     actions.push(generateAction("bridge", destination));
     // actions.push(generateAction("sleep", "1000"));
     actions.push(generateAction("hangup"))
@@ -212,6 +222,7 @@ function voiceResponseFeeder(data = "", cb) {
     let actions = []
 
     actions.push(generateAction("answer"))
+    actions.push(generateAction("record_session", "$${recordings_dir}/${uuid}.mp3"));
     actions.push(generateAction("set", "hangup_after_bridge=true"));
     actions.push(generateAction("set", "continue_on_fail=true"));
     actions.push(generateAction("playback", data));
@@ -228,6 +239,7 @@ function ivrResponseFeeder(voiceMessage, keyPressValue, purpose, cb) {
 
     actions.push(generateAction("answer"))
     actions.push(generateAction("set", `ivr_purpose=${purpose}`));
+    actions.push(generateAction("record_session", "$${recordings_dir}/${uuid}.mp3"));
     actions.push(generateAction("play_and_get_digits", data));
     // actions.push(generateAction("sleep", "1000"));
     actions.push(generateAction("transfer", "$1 XML default"))
