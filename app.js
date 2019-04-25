@@ -6,6 +6,8 @@ const util = require('util');
 const got = require('got');
 
 const baseUrl = "https://labtest.gofrugal.com/call_center"
+let baseFile = "cloudCall.php"
+
 const headers = { 'X-Api-Key': "e72bb2cb-4003-4e93-ba6a-abaf59a2615b" }
 
 const welcomeMessage = "https://download.gofrugal.com/ivr/AudioFiles/welcome-to-gft-I.wav"
@@ -67,7 +69,6 @@ function dialPlanHandler(req, cb) {
                 const purpose = body["variable_ivr_purpose"]
                 const eventFunction = body['Event-Calling-Function']
 
-                let baseFile = "cloudCall.php"
                 if (dtmf) baseFile = "cloudIncomingCall.php"
 
                 if ((eventFunction === "dialplan_xml_locate") && DIDs.includes(called)) {
@@ -131,13 +132,12 @@ function cdrHandler(req, cb) {
     const { body } = req
     const { variables: cdr } = body
     console.log(cdr);
-
     const { call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, progresssec: ringtime, duration, bridge_channel, sip_hangup_disposition: hangup_direction } = cdr
     const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
     const hangupfirst = hangup_direction.startsWith("send_") ? called : (dialer || caller)
     const recording_path = `http://gfdemo.vivacommunication.com:8080/api/recording/${uuid}`
     // sip_hangup_disposition: 'recv_cancel'
-    let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${dialer}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=${recording_path}&hangupfirst=${hangupfirst}&country=IN`
+    let url = `${baseUrl}/${baseFile}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${dialer}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=${recording_path}&hangupfirst=${hangupfirst}&country=IN`
     // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
     execAPI(null, url, res => {
         console.log(res)
