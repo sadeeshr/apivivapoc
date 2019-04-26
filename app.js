@@ -136,10 +136,12 @@ function cdrHandler(req, cb) {
     const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
     const hangupfirst = hangup_direction.startsWith("send_") ? called : (dialer || caller)
     const recording_path = (Number(duration) > 0) ? `http://gofrugaldemo.vivacommunication.com:8080/api/recording/${uuid}` : ""
-    // sip_hangup_disposition: 'recv_cancel'
+    const sendCdr = ["914466455977", "914466455978"].includes(called)
+
     let url = `${baseUrl}/${baseFile}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${dialer}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=${recording_path}&hangupfirst=${hangupfirst}&country=IN`
     // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
-    execAPI(null, url, res => {
+
+    sendCdr && execAPI(null, url, res => {
         console.log(res)
         cb(200)
     })
