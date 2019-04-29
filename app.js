@@ -69,10 +69,10 @@ function dialPlanHandler(req, cb) {
                 const purpose = body["variable_ivr_purpose"]
                 const eventFunction = body['Event-Calling-Function']
 
-                if (dtmf) baseFile = "cloudIncomingCall.php"
 
                 if ((eventFunction === "dialplan_xml_locate") && DIDs.includes(called)) {
                     console.log(dtmf, purpose);
+                    if (dtmf) baseFile = "cloudIncomingCall.php"
                     let dialplan = {
                         "document": {
                             "@type": "freeswitch/xml",
@@ -132,7 +132,7 @@ function cdrHandler(req, cb) {
     const { body } = req
     const { variables: cdr } = body
     console.log(cdr);
-    const { call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, progresssec: ringtime, duration = 0, bridge_channel, sip_hangup_disposition: hangup_direction } = cdr
+    const { call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, answersec: ringtime, duration = 0, bridge_channel, sip_hangup_disposition: hangup_direction } = cdr
     const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
     const hangupfirst = hangup_direction.startsWith("send_") ? called : (dialer || caller)
     const recording_path = (Number(duration) > 0) ? `http://gofrugaldemo.vivacommunication.com:8080/api/recording/${uuid}` : ""
