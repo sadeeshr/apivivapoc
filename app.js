@@ -136,7 +136,8 @@ function cdrHandler(req, cb) {
     const { body } = req
     const { variables: cdr } = body
     console.log(cdr);
-    const { call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, answersec: ringtime, billsec: duration = 0, bridge_channel, sip_hangup_disposition: hangup_direction } = cdr
+    let { call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, answersec: ringtime, duration: callDuration, billsec: duration = 0, bridge_channel, sip_hangup_disposition: hangup_direction } = cdr
+    if (Number(duration) === 0) ringtime = callDuration
     const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
     const hangupfirst = hangup_direction.startsWith("send_") ? called : (dialer || caller)
     const recording_path = (Number(duration) > 0) ? `http://gofrugaldemo.vivacommunication.com:8080/api/recording/${uuid}` : ""
@@ -223,16 +224,17 @@ function dialResponseFeeder(data = "", cb) {
     let actions = []
 
     actions.push(generateAction("pre_answer"))
-    actions.push(generateAction("set", "instant_ringback=true"))
+    // actions.push(generateAction("set", "instant_ringback=true"))
     actions.push(generateAction("set", "ringback=${in-ring}"));
-    actions.push(generateAction("set", "call_timeout=30"));
+    // actions.push(generateAction("set", "ignore_early_media=true"));
+    // actions.push(generateAction("set", "call_timeout=30"));
     actions.push(generateAction("set", "hangup_after_bridge=true"));
     actions.push(generateAction("set", "continue_on_fail=true"));
     actions.push(generateAction("set", "media_bug_answer_req=true"));
     actions.push(generateAction("record_session", "$${recordings_dir}/${uuid}.mp3"));
 
     actions.push(generateAction("bridge", destination));
-    actions.push(generateAction("playback", "directory/dir-please_try_again.wav"));
+    // actions.push(generateAction("playback", "directory/dir-please_try_again.wav"));
     actions.push(generateAction("hangup"))
 
     cb(actions)
