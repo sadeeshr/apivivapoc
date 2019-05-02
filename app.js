@@ -72,7 +72,11 @@ function dialPlanHandler(req, cb) {
 
                 if ((eventFunction === "dialplan_xml_locate") && DIDs.includes(called)) {
                     console.log(dtmf, purpose);
-                    if (dtmf) baseFile = "cloudIncomingCall.php"
+                    if (dtmf)
+                        baseFile = "cloudIncomingCall.php"
+                    else
+                        baseFile = "cloudCall.php"
+
                     let dialplan = {
                         "document": {
                             "@type": "freeswitch/xml",
