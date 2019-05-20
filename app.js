@@ -138,6 +138,7 @@ function cdrHandler(req, cb) {
     console.log(cdr);
     let { call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, answersec: ringtime, duration: callDuration, billsec: duration = 0, bridge_channel, sip_hangup_disposition: hangup_direction } = cdr
     if (Number(duration) === 0) ringtime = callDuration
+    baseFile = "cloudCall.php"
     const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
     const hangupfirst = hangup_direction.startsWith("send_") ? called : (dialer || caller)
     const recording_path = (Number(duration) > 0) ? `http://gofrugaldemo.vivacommunication.com:8080/api/recording/${uuid}` : ""
@@ -220,7 +221,7 @@ function handleResponseCode(called, data = "", cb) {
 
 function dialResponseFeeder(data = "", cb) {
     let phone = data.split(",")
-    let destination = phone.map(num => `sofia/gateway/${gateway}/${num}`)
+    let destination = phone.map(num => `sofia/gateway/${gateway}/${num.substr(-10, 10)}`)
     let actions = []
 
     actions.push(generateAction("pre_answer"))
@@ -244,7 +245,7 @@ function voiceResponseFeeder(called, data = "", cb) {
     let actions = []
 
     actions.push(generateAction("set", "media_bug_answer_req=true"));
-    actions.push(generateAction("answer"))
+    actions.push(generateAction("pre_answer"))
     actions.push(generateAction("record_session", "$${recordings_dir}/${uuid}.mp3"));
     if (called === "914466455977") actions.push(generateAction("playback", welcomeMessage));
     actions.push(generateAction("set", "hangup_after_bridge=true"));
@@ -262,7 +263,7 @@ function ivrResponseFeeder(called, voiceMessage, keyPressValue, purpose, cb) {
     let data = `1 1 3 3000 # ${voiceMessage} ${invalid} key_press [${keyPressValue}]`
 
     actions.push(generateAction("set", "media_bug_answer_req=true"));
-    actions.push(generateAction("answer"))
+    actions.push(generateAction("pre_answer"))
     actions.push(generateAction("record_session", "$${recordings_dir}/${uuid}.mp3"));
     if (called === "914466455977") actions.push(generateAction("playback", welcomeMessage));
     actions.push(generateAction("set", `ivr_purpose=${purpose}`));
