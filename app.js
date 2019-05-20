@@ -240,7 +240,7 @@ function handleResponseCode(called, data = "", cb) {
 
 function dialResponseFeeder(data = "", inbound, cb) {
     let phone = data.split(",")
-    let destination = phone.map(num => `sofia/gateway/${gateway}/${num.substr(-10, 10)}`)
+    let destination = phone.map(num => `sofia/gateway/${gateway}/91${num.substr(-10, 10)}`)
     let actions = []
     let url = baseUrl + '/' + statusBaseFile + '?transactionid=${uuid}&agent_number=${destination_number}&agent_status_id='
 
