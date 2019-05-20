@@ -7,16 +7,17 @@ const got = require('got');
 
 const baseUrl = "https://labtest.gofrugal.com/call_center"
 let baseFile = "cloudCall.php"
+let statusBaseFile = "cloudCallAgentStatusUpdate.php"
 
 const headers = { 'X-Api-Key': "e72bb2cb-4003-4e93-ba6a-abaf59a2615b" }
 
 const welcomeMessage = "https://download.gofrugal.com/ivr/AudioFiles/welcome-to-gft-I.wav"
-const testVoice = "1234567890"
-const testDial = "9629845692"
 const gateway = "VIVA"
-const DIDs = [
-    "914466455977", // Inbound
-    "914466455978", // Outbound
+const inboundDIDs = [
+    "914466455977",
+]
+const outboundDIDs = [
+    "914466455978",
 ]
 
 app.use(bodyParser.json())
@@ -28,6 +29,22 @@ app.get('/api/recording/:id', function (req, res) {
     const recordingsPath = "/var/lib/freeswitch/recordings/"
     res.download(`${recordingsPath}${id}.mp3`);
 });
+
+// app.get('/api/status/:uuid/:agent_number/:agent_status_id', function (req, res) {
+//     const { params } = req
+//     const { uuid, agent_number, agent_status_id } = params
+
+//     let url = `${baseUrl}/${statusBaseFile}?transactionid=${uuid}&agent_number=${agent_number}&agent_status_id=${agent_status_id}`
+
+//     execAPI(called, url, action => {
+//         extension.condition.action = action;
+//         dialplan.document.section.context.extension = extension;
+//         toXML(dialplan, function (xmlResult) {
+//             cb(xmlResult);
+//         });
+//     })
+//     res.download(`${recordingsPath}${id}.mp3`);
+// });
 
 app.post('/api/system', function (req, res) {
     // console.log(req.body);
@@ -68,7 +85,7 @@ function dialPlanHandler(req, cb) {
                 const dtmf = body["variable_key_press"]
                 const purpose = body["variable_ivr_purpose"]
                 const eventFunction = body['Event-Calling-Function']
-
+                const DIDs = [...inboundDIDs, outboundDIDs]
 
                 if ((eventFunction === "dialplan_xml_locate") && DIDs.includes(called)) {
                     console.log(dtmf, purpose);
@@ -136,15 +153,16 @@ function cdrHandler(req, cb) {
     const { body } = req
     const { variables: cdr } = body
     console.log(cdr);
-    let { call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, answersec: ringtime, duration: callDuration, billsec: duration = 0, bridge_channel, sip_hangup_disposition: hangup_direction } = cdr
+    let { call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, answersec: ringtime, duration: callDuration, billsec: duration = 0, bridge_channel, sip_hangup_disposition: hangup_direction, key_press = "" } = cdr
     if (Number(duration) === 0) ringtime = callDuration
     baseFile = "cloudCall.php"
     const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
     const hangupfirst = hangup_direction.startsWith("send_") ? called : (dialer || caller)
     const recording_path = (Number(duration) > 0) ? `http://gofrugaldemo.vivacommunication.com:8080/api/recording/${uuid}` : ""
-    const sendCdr = ["914466455977", "914466455978"].includes(called)
+    const DIDs = [...inboundDIDs, ...outboundDIDs]
+    const sendCdr = DIDs.includes(called)
 
-    let url = `${baseUrl}/${baseFile}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${dialer}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=${recording_path}&hangupfirst=${hangupfirst}&country=IN`
+    let url = `${baseUrl}/${baseFile}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${dialer}&location=tamilnadu&keypress=${key_press}&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=${recording_path}&hangupfirst=${hangupfirst}&country=IN`
     // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
 
     sendCdr && execAPI(null, url, res => {
@@ -194,15 +212,16 @@ function execAPI(called, url, cb) {
 function handleResponseCode(called, data = "", cb) {
     const response = Object.assign({}, ...data.split("|").map(i => i.includes("=") ? ({ [i.split("=")[0]]: i.split("=")[1] }) : ({ code: i })))
     const { code, dial, voiceMessage, keyPress, keyPressValue, purpose } = response
+    const inbound = inboundDIDs.includes(called)
     switch (code) {
         case "200":
-            dialResponseFeeder(dial, res => cb(res))
+            dialResponseFeeder(dial, inbound, res => cb(res))
             break;
         case "201":
         case "204":
             {
                 // ivrResponseFeeder(voiceMessage, "1-2", "unknown_call_transfer", res => cb(res))
-                ivrResponseFeeder(called, voiceMessage, keyPressValue, purpose, res => cb(res))
+                ivrResponseFeeder(voiceMessage, keyPressValue, purpose, inbound, res => cb(res))
                 break;
             }
         case "202":
@@ -210,7 +229,7 @@ function handleResponseCode(called, data = "", cb) {
         case "205":
         case "300":
         case "301":
-            voiceResponseFeeder(called, voiceMessage, res => cb(res))
+            voiceResponseFeeder(voiceMessage, inbound, res => cb(res))
             break;
         default:
             cb(generateAction("hangup"))
@@ -219,10 +238,11 @@ function handleResponseCode(called, data = "", cb) {
 }
 
 
-function dialResponseFeeder(data = "", cb) {
+function dialResponseFeeder(data = "", inbound, cb) {
     let phone = data.split(",")
     let destination = phone.map(num => `sofia/gateway/${gateway}/${num.substr(-10, 10)}`)
     let actions = []
+    let url = baseUrl + '/' + statusBaseFile + '?transactionid=${uuid}&agent_number=${destination_number}&agent_status_id='
 
     actions.push(generateAction("pre_answer"))
     // actions.push(generateAction("set", "instant_ringback=true"))
@@ -232,22 +252,26 @@ function dialResponseFeeder(data = "", cb) {
     actions.push(generateAction("set", "hangup_after_bridge=true"));
     actions.push(generateAction("set", "continue_on_fail=true"));
     actions.push(generateAction("set", "media_bug_answer_req=true"));
+    actions.push(generateAction("set", `api_on_originate=curl ${url}5`));           // set BUSY
+    actions.push(generateAction("set", `api_hangup_hook=curl ${url}4`));            // set FREE
+    if (inbound) actions.push(generateAction("set", `exec_after_bridge_app=ivr`));               // C-SAT IVR
+    if (inbound) actions.push(generateAction("set", `exec_after_bridge_arg=gf_csat_ivr`));       // gf_csat_ivr
+
     actions.push(generateAction("record_session", "$${recordings_dir}/${uuid}.mp3"));
 
     actions.push(generateAction("bridge", destination));
-    // actions.push(generateAction("playback", "directory/dir-please_try_again.wav"));
     actions.push(generateAction("hangup"))
 
     cb(actions)
 }
 
-function voiceResponseFeeder(called, data = "", cb) {
+function voiceResponseFeeder(data = "", inbound, cb) {
     let actions = []
 
     actions.push(generateAction("set", "media_bug_answer_req=true"));
     actions.push(generateAction("pre_answer"))
     actions.push(generateAction("record_session", "$${recordings_dir}/${uuid}.mp3"));
-    if (called === "914466455977") actions.push(generateAction("playback", welcomeMessage));
+    if (inbound) actions.push(generateAction("playback", welcomeMessage));
     actions.push(generateAction("set", "hangup_after_bridge=true"));
     actions.push(generateAction("set", "continue_on_fail=true"));
     actions.push(generateAction("playback", data));
@@ -257,15 +281,16 @@ function voiceResponseFeeder(called, data = "", cb) {
     cb(actions)
 }
 
-function ivrResponseFeeder(called, voiceMessage, keyPressValue, purpose, cb) {
+function ivrResponseFeeder(voiceMessage, keyPressValue, purpose, inbound, cb) {
     let actions = []
     let invalid = "ivr/ivr-that_was_an_invalid_entry.wav"
-    let data = `1 1 3 3000 # ${voiceMessage} ${invalid} key_press [${keyPressValue}]`
+    // let data = `1 1 3 3000 # ${voiceMessage} ${invalid} key_press [${keyPressValue}]`
+    let data = `1 1 3 3000 # ${voiceMessage}  key_press [${keyPressValue}]`
 
     actions.push(generateAction("set", "media_bug_answer_req=true"));
     actions.push(generateAction("pre_answer"))
     actions.push(generateAction("record_session", "$${recordings_dir}/${uuid}.mp3"));
-    if (called === "914466455977") actions.push(generateAction("playback", welcomeMessage));
+    if (inbound) actions.push(generateAction("playback", welcomeMessage));
     actions.push(generateAction("set", `ivr_purpose=${purpose}`));
     actions.push(generateAction("play_and_get_digits", data));
     // actions.push(generateAction("sleep", "1000"));
@@ -274,33 +299,3 @@ function ivrResponseFeeder(called, voiceMessage, keyPressValue, purpose, cb) {
 
     cb(actions)
 }
-// simulation
-// let url = `${baseUrl}?caller=${"1234567890"}&transactionid=abcd1234&called=${"9876543210"}&call_type=IC&location=tamilnadu&pin=1&purpose=unknown_call_transfer`
-// execAPI(url, action => console.log(util.inspect(action, false, null, true)))
-
-// { code: '201',
-//   voiceMessage: 'filename.mp3',
-//   keyPress: 'true',
-//   keyPressValue: '1-3',
-//   purpose: 'unknown_call_transfer' }
-
-// To stream file instead of attachment
-
-// var http = require('http'),
-//     fileSystem = require('fs'),
-//     path = require('path');
-
-// http.createServer(function(request, response) {
-//     var filePath = path.join(__dirname, 'myfile.mp3');
-//     var stat = fileSystem.statSync(filePath);
-
-//     response.writeHead(200, {
-//         'Content-Type': 'audio/mpeg',
-//         'Content-Length': stat.size
-//     });
-
-//     var readStream = fileSystem.createReadStream(filePath);
-//     // We replaced all the event handlers with a simple call to readStream.pipe()
-//     readStream.pipe(response);
-// })
-// .listen(2000);

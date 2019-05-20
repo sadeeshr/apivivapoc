@@ -1,0 +1,21 @@
+<include>
+ <menu name="gf_csat_ivr"
+     greet-long="https://download.gofrugal.com/ivr/AudioFiles/main-menu15305384611.wav"
+     timeout="5000"
+     inter-digit-timeout="2000"
+     digit-len="1"
+     >
+   <entry action="menu-exec-app" digits="1" param="execute_extension export:'key_press 1',playback:'https://download.gofrugal.com/ivr/AudioFiles/star-1.wav' inline"/>
+   <entry action="menu-exec-app" digits="2" param="execute_extension export:'key_press 2',playback:'https://download.gofrugal.com/ivr/AudioFiles/star-2.wav' inline"/>
+   <entry action="menu-exec-app" digits="3" param="execute_extension export:'key_press 3',playback:'https://download.gofrugal.com/ivr/AudioFiles/star-3.wav' inline"/>   
+   <entry action="menu-exec-app" digits="4" param="execute_extension export:'key_press 4',playback:'https://download.gofrugal.com/ivr/AudioFiles/star-4.wav' inline"/>   
+   <entry action="menu-exec-app" digits="5" param="execute_extension export:'key_press 5',playback:'https://download.gofrugal.com/ivr/AudioFiles/star-5.wav' inline"/>        
+ </menu> 
+</include>
+
+
+           
+           
+           
+           
+           
