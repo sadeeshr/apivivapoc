@@ -254,6 +254,8 @@ function dialResponseFeeder(data = "", inbound, cb) {
     actions.push(generateAction("set", "media_bug_answer_req=true"));
     actions.push(generateAction("set", `api_on_originate=curl ${url}5`));           // set BUSY
     actions.push(generateAction("set", `api_hangup_hook=curl ${url}4`));            // set FREE
+    actions.push(generateAction("export", "nolocal:api_on_answer=uuid_setvar ${uuid} agent_answered_time ${strepoch()} both"));
+
     if (inbound) actions.push(generateAction("set", `exec_after_bridge_app=ivr`));               // C-SAT IVR
     if (inbound) actions.push(generateAction("set", `exec_after_bridge_arg=gf_csat_ivr`));       // gf_csat_ivr
 
@@ -269,7 +271,7 @@ function voiceResponseFeeder(data = "", inbound, cb) {
     let actions = []
 
     actions.push(generateAction("set", "media_bug_answer_req=true"));
-    actions.push(generateAction("pre_answer"))
+    actions.push(generateAction("answer"))
     actions.push(generateAction("record_session", "$${recordings_dir}/${uuid}.mp3"));
     if (inbound) actions.push(generateAction("playback", welcomeMessage));
     actions.push(generateAction("set", "hangup_after_bridge=true"));
@@ -288,7 +290,7 @@ function ivrResponseFeeder(voiceMessage, keyPressValue, purpose, inbound, cb) {
     let data = `1 1 3 3000 # ${voiceMessage}  key_press [${keyPressValue}]`
 
     actions.push(generateAction("set", "media_bug_answer_req=true"));
-    actions.push(generateAction("pre_answer"))
+    actions.push(generateAction("answer"))
     actions.push(generateAction("record_session", "$${recordings_dir}/${uuid}.mp3"));
     if (inbound) actions.push(generateAction("playback", welcomeMessage));
     actions.push(generateAction("set", `ivr_purpose=${purpose}`));
