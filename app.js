@@ -244,7 +244,7 @@ function dialResponseFeeder(data = "", inbound, cb) {
     let actions = []
     let url = baseUrl + '/' + statusBaseFile + '?transactionid=${uuid}&agent_number=${destination_number}&agent_status_id='
 
-    actions.push(generateAction("pre_answer"))
+    actions.push(generateAction("answer")) //pre_answer
     // actions.push(generateAction("set", "instant_ringback=true"))
     actions.push(generateAction("set", "ringback=${in-ring}"));
     // actions.push(generateAction("set", "ignore_early_media=true"));
@@ -254,7 +254,7 @@ function dialResponseFeeder(data = "", inbound, cb) {
     actions.push(generateAction("set", "media_bug_answer_req=true"));
     actions.push(generateAction("set", `api_on_originate=curl ${url}5`));           // set BUSY
     actions.push(generateAction("set", `api_hangup_hook=curl ${url}4`));            // set FREE
-    actions.push(generateAction("export", "nolocal:api_on_answer=uuid_setvar ${uuid} agent_answered_time ${strepoch()} both"));
+    actions.push(generateAction("export", "nolocal:api_on_answer=uuid_setvar ${uuid} agent_answered_time ${strepoch()}"));
 
     if (inbound) actions.push(generateAction("set", `exec_after_bridge_app=ivr`));               // C-SAT IVR
     if (inbound) actions.push(generateAction("set", `exec_after_bridge_arg=gf_csat_ivr`));       // gf_csat_ivr
