@@ -332,7 +332,6 @@ function subscribeEvents() {
             })
     } catch (err) {
         console.log("### FS EXEC ERROR ###: ", err);
-        cb(err)
     }
 }
 
