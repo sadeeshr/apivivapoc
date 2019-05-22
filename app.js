@@ -20,6 +20,8 @@ const outboundDIDs = [
     "914466455978",
 ]
 
+let FS = null;
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -300,4 +302,74 @@ function ivrResponseFeeder(voiceMessage, keyPressValue, purpose, inbound, cb) {
     // actions.push(generateAction("hangup"))    
 
     cb(actions)
+}
+
+FS = new esl.Connection('127.0.0.1', 8021, 'ClueCon', () => {
+    if (FS.connected()) {
+        console.log("FS Connected")
+        subscribeEvents();
+    }
+});
+FS.on('error', (err) => {
+    if (FS) FS = null;
+    console.log("FS connection failed: ", err);
+});
+
+function subscribeEvents() {
+    console.log("Subscribing to Events");
+    try {
+        conn.subscribe(
+            [
+                'CHANNEL_ORIGINATE',
+                'CHANNEL_ANSWER',
+                'CHANNEL_HANGUP'
+            ],
+            function () {
+                conn.on('esl::event::CHANNEL_ORIGINATE::*', function (evt) { channelsEventsHandler(evt) });
+                conn.on('esl::event::CHANNEL_ANSWER::*', function (evt) { channelsEventsHandler(evt) });
+                conn.on('esl::event::CHANNEL_HANGUP::*', function (evt) { channelsEventsHandler(evt) })
+            })
+    } catch (err) {
+        console.log("### FS EXEC ERROR ###: ", err);
+        cb(err)
+    }
+}
+
+function channelsEventsHandler(evt) {
+    // var uniqueId = evt.getHeader('Unique-ID');
+    // var callId = evt.getHeader('Channel-Call-UUID');
+    // var eventName = evt.getHeader('Event-Name');
+    // const timestamp = Math.floor(evt.getHeader('Event-Date-Timestamp') / 1E6)
+    // var context = evt.getHeader('Caller-Context')
+    // var destination = evt.getHeader('variable_sip_to_user') || evt.getHeader('Caller-Destination-Number')
+    // var domain = evt.getHeader('variable_domain_name') || evt.getHeader('variable_dialed_domain') || evt.getHeader('variable_sip_req_host') || evt.getHeader('variable_sip_to_host')
+    // var cid_num = evt.getHeader('Caller-Caller-ID-Number')
+    // var callee_num = evt.getHeader('Caller-Callee-ID-Number')
+    // // callRow.state = evt.getHeader('Channel-State');
+    // // callRow.callstate = evt.getHeader('Channel-Call-State');
+    // // callRow.answerstate = evt.getHeader('Answer-State');
+    // // callRow.hit_dialplan = evt.getHeader('Channel-HIT-Dialplan');
+
+    switch (eventName) {
+        case "CHANNEL_ORIGINATE":
+            {
+                console.log("CHANNEL CREATE EVENT", evt);
+                break;
+            }
+
+        case "CHANNEL_ANSWER":
+            {
+                console.log("CHANNEL ANSWER EVENT", evt);
+                break;
+            }
+
+        case "CHANNEL_HANGUP":
+            {
+                console.log("CHANNEL HANGUP EVENT", evt);
+                break;
+            }
+
+        default:
+            break;
+    }
 }
