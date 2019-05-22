@@ -338,7 +338,7 @@ function subscribeEvents() {
 function channelsEventsHandler(evt) {
     // var uniqueId = evt.getHeader('Unique-ID');
     // var callId = evt.getHeader('Channel-Call-UUID');
-    // var eventName = evt.getHeader('Event-Name');
+    var eventName = evt.getHeader('Event-Name');
     // const timestamp = Math.floor(evt.getHeader('Event-Date-Timestamp') / 1E6)
     // var context = evt.getHeader('Caller-Context')
     // var destination = evt.getHeader('variable_sip_to_user') || evt.getHeader('Caller-Destination-Number')
