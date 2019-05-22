@@ -319,16 +319,16 @@ FS.on('error', (err) => {
 function subscribeEvents() {
     console.log("Subscribing to Events");
     try {
-        conn.subscribe(
+        FS.subscribe(
             [
                 'CHANNEL_ORIGINATE',
                 'CHANNEL_ANSWER',
                 'CHANNEL_HANGUP'
             ],
             function () {
-                conn.on('esl::event::CHANNEL_ORIGINATE::*', function (evt) { channelsEventsHandler(evt) });
-                conn.on('esl::event::CHANNEL_ANSWER::*', function (evt) { channelsEventsHandler(evt) });
-                conn.on('esl::event::CHANNEL_HANGUP::*', function (evt) { channelsEventsHandler(evt) })
+                FS.on('esl::event::CHANNEL_ORIGINATE::*', function (evt) { channelsEventsHandler(evt) });
+                FS.on('esl::event::CHANNEL_ANSWER::*', function (evt) { channelsEventsHandler(evt) });
+                FS.on('esl::event::CHANNEL_HANGUP::*', function (evt) { channelsEventsHandler(evt) })
             })
     } catch (err) {
         console.log("### FS EXEC ERROR ###: ", err);
