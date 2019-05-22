@@ -85,7 +85,7 @@ function dialPlanHandler(req, cb) {
                 const dtmf = body["variable_key_press"]
                 const purpose = body["variable_ivr_purpose"]
                 const eventFunction = body['Event-Calling-Function']
-                const DIDs = [...inboundDIDs, outboundDIDs]
+                const DIDs = [...inboundDIDs, ...outboundDIDs]
 
                 if ((eventFunction === "dialplan_xml_locate") && DIDs.includes(called)) {
                     console.log(dtmf, purpose);
