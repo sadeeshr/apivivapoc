@@ -153,6 +153,7 @@ function dialPlanHandler(req, cb) {
 }
 
 function cdrHandler(req, cb) {
+    const DIDs = [...inboundDIDs, ...outboundDIDs]
     const { body } = req
     const { variables: cdr } = body
     let { call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, answersec: ringtime, duration: callDuration, billsec: duration = 0, bridge_channel, sip_hangup_disposition: hangup_direction, key_press = "" } = cdr
@@ -165,7 +166,6 @@ function cdrHandler(req, cb) {
         const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
         const hangupfirst = hangup_direction.startsWith("send_") ? called : (dialer || caller)
         const recording_path = (Number(duration) > 0) ? `http://gofrugaldemo.vivacommunication.com:8080/api/recording/${uuid}` : ""
-        const DIDs = [...inboundDIDs, ...outboundDIDs]
 
         let url = `${baseUrl}/${baseFile}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${dialer}&location=tamilnadu&keypress=${key_press}&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=${recording_path}&hangupfirst=${hangupfirst}&country=IN`
         // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
