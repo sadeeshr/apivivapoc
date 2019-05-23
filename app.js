@@ -155,23 +155,27 @@ function dialPlanHandler(req, cb) {
 function cdrHandler(req, cb) {
     const { body } = req
     const { variables: cdr } = body
-    console.log(cdr);
     let { call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, answersec: ringtime, duration: callDuration, billsec: duration = 0, bridge_channel, sip_hangup_disposition: hangup_direction, key_press = "" } = cdr
-    if (Number(duration) === 0) ringtime = callDuration
-    baseFile = "cloudCall.php"
-    const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
-    const hangupfirst = hangup_direction.startsWith("send_") ? called : (dialer || caller)
-    const recording_path = (Number(duration) > 0) ? `http://gofrugaldemo.vivacommunication.com:8080/api/recording/${uuid}` : ""
-    const DIDs = [...inboundDIDs, ...outboundDIDs]
     const sendCdr = DIDs.includes(called)
 
-    let url = `${baseUrl}/${baseFile}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${dialer}&location=tamilnadu&keypress=${key_press}&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=${recording_path}&hangupfirst=${hangupfirst}&country=IN`
-    // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
+    if (sendCdr) {
+        console.log(cdr);
+        if (Number(duration) === 0) ringtime = callDuration
+        baseFile = "cloudCall.php"
+        const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
+        const hangupfirst = hangup_direction.startsWith("send_") ? called : (dialer || caller)
+        const recording_path = (Number(duration) > 0) ? `http://gofrugaldemo.vivacommunication.com:8080/api/recording/${uuid}` : ""
+        const DIDs = [...inboundDIDs, ...outboundDIDs]
 
-    sendCdr && execAPI(null, url, res => {
-        console.log(res)
+        let url = `${baseUrl}/${baseFile}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${dialer}&location=tamilnadu&keypress=${key_press}&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=${recording_path}&hangupfirst=${hangupfirst}&country=IN`
+        // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
+
+        execAPI(null, url, res => {
+            console.log(res)
+            cb(200)
+        })
+    } else
         cb(200)
-    })
 
 }
 
@@ -252,11 +256,13 @@ function dialResponseFeeder(data = "", inbound, cb) {
     actions.push(generateAction("set", "ringback=${in-ring}"));
     // actions.push(generateAction("set", "ignore_early_media=true"));
     // actions.push(generateAction("set", "call_timeout=30"));
+    actions.push(generateAction("set", "session_in_hangup_hook=true"), true);
+
     actions.push(generateAction("set", "hangup_after_bridge=true"));
     actions.push(generateAction("set", "continue_on_fail=true"));
     actions.push(generateAction("set", "media_bug_answer_req=true"));
-    actions.push(generateAction("set", `api_on_originate=curl ${url}5`));           // set BUSY
-    actions.push(generateAction("set", `api_hangup_hook=curl ${url}4`));            // set FREE
+    actions.push(generateAction("set", `api_after_bridge=curl ${url}5`), true);           // set BUSY
+    actions.push(generateAction("set", `api_hangup_hook=curl ${url}4`), true);            // set FREE
     actions.push(generateAction("export", "nolocal:api_on_answer=uuid_setvar ${uuid} agent_answered_time ${strepoch()}"));
 
     if (inbound) actions.push(generateAction("set", `exec_after_bridge_app=ivr`));               // C-SAT IVR
@@ -305,71 +311,71 @@ function ivrResponseFeeder(voiceMessage, keyPressValue, purpose, inbound, cb) {
     cb(actions)
 }
 
-FS = new esl.Connection('127.0.0.1', 8021, 'ClueCon', () => {
-    if (FS.connected()) {
-        console.log("FS Connected")
-        subscribeEvents();
-    }
-});
-FS.on('error', (err) => {
-    if (FS) FS = null;
-    console.log("FS connection failed: ", err);
-});
+// FS = new esl.Connection('127.0.0.1', 8021, 'ClueCon', () => {
+//     if (FS.connected()) {
+//         console.log("FS Connected")
+//         subscribeEvents();
+//     }
+// });
+// FS.on('error', (err) => {
+//     if (FS) FS = null;
+//     console.log("FS connection failed: ", err);
+// });
 
-function subscribeEvents() {
-    console.log("Subscribing to Events");
-    try {
-        FS.subscribe(
-            [
-                'CHANNEL_ORIGINATE',
-                'CHANNEL_ANSWER',
-                'CHANNEL_HANGUP'
-            ],
-            function () {
-                FS.on('esl::event::CHANNEL_ORIGINATE::*', function (evt) { channelsEventsHandler(evt) });
-                FS.on('esl::event::CHANNEL_ANSWER::*', function (evt) { channelsEventsHandler(evt) });
-                FS.on('esl::event::CHANNEL_HANGUP::*', function (evt) { channelsEventsHandler(evt) })
-            })
-    } catch (err) {
-        console.log("### FS EXEC ERROR ###: ", err);
-    }
-}
+// function subscribeEvents() {
+//     console.log("Subscribing to Events");
+//     try {
+//         FS.subscribe(
+//             [
+//                 'CHANNEL_ORIGINATE',
+//                 'CHANNEL_ANSWER',
+//                 'CHANNEL_HANGUP'
+//             ],
+//             function () {
+//                 FS.on('esl::event::CHANNEL_ORIGINATE::*', function (evt) { channelsEventsHandler(evt) });
+//                 FS.on('esl::event::CHANNEL_ANSWER::*', function (evt) { channelsEventsHandler(evt) });
+//                 FS.on('esl::event::CHANNEL_HANGUP::*', function (evt) { channelsEventsHandler(evt) })
+//             })
+//     } catch (err) {
+//         console.log("### FS EXEC ERROR ###: ", err);
+//     }
+// }
 
-function channelsEventsHandler(evt) {
-    // var uniqueId = evt.getHeader('Unique-ID');
-    // var callId = evt.getHeader('Channel-Call-UUID');
-    var eventName = evt.getHeader('Event-Name');
-    // const timestamp = Math.floor(evt.getHeader('Event-Date-Timestamp') / 1E6)
-    // var context = evt.getHeader('Caller-Context')
-    // var destination = evt.getHeader('variable_sip_to_user') || evt.getHeader('Caller-Destination-Number')
-    // var domain = evt.getHeader('variable_domain_name') || evt.getHeader('variable_dialed_domain') || evt.getHeader('variable_sip_req_host') || evt.getHeader('variable_sip_to_host')
-    // var cid_num = evt.getHeader('Caller-Caller-ID-Number')
-    // var callee_num = evt.getHeader('Caller-Callee-ID-Number')
-    // // callRow.state = evt.getHeader('Channel-State');
-    // // callRow.callstate = evt.getHeader('Channel-Call-State');
-    // // callRow.answerstate = evt.getHeader('Answer-State');
-    // // callRow.hit_dialplan = evt.getHeader('Channel-HIT-Dialplan');
+// function channelsEventsHandler(evt) {
+//     // var uniqueId = evt.getHeader('Unique-ID');
+//     // var callId = evt.getHeader('Channel-Call-UUID');
+//     var eventName = evt.getHeader('Event-Name');
+//     // const timestamp = Math.floor(evt.getHeader('Event-Date-Timestamp') / 1E6)
+//     // var context = evt.getHeader('Caller-Context')
+//     // var destination = evt.getHeader('variable_sip_to_user') || evt.getHeader('Caller-Destination-Number')
+//     // var domain = evt.getHeader('variable_domain_name') || evt.getHeader('variable_dialed_domain') || evt.getHeader('variable_sip_req_host') || evt.getHeader('variable_sip_to_host')
+//     // var cid_num = evt.getHeader('Caller-Caller-ID-Number')
+//     // var callee_num = evt.getHeader('Caller-Callee-ID-Number')
+//     // // callRow.state = evt.getHeader('Channel-State');
+//     // // callRow.callstate = evt.getHeader('Channel-Call-State');
+//     // // callRow.answerstate = evt.getHeader('Answer-State');
+//     // // callRow.hit_dialplan = evt.getHeader('Channel-HIT-Dialplan');
 
-    switch (eventName) {
-        case "CHANNEL_ORIGINATE":
-            {
-                console.log("CHANNEL CREATE EVENT", evt);
-                break;
-            }
+//     switch (eventName) {
+//         case "CHANNEL_ORIGINATE":
+//             {
+//                 console.log("CHANNEL CREATE EVENT", evt);
+//                 break;
+//             }
 
-        case "CHANNEL_ANSWER":
-            {
-                console.log("CHANNEL ANSWER EVENT", evt);
-                break;
-            }
+//         case "CHANNEL_ANSWER":
+//             {
+//                 console.log("CHANNEL ANSWER EVENT", evt);
+//                 break;
+//             }
 
-        case "CHANNEL_HANGUP":
-            {
-                console.log("CHANNEL HANGUP EVENT", evt);
-                break;
-            }
+//         case "CHANNEL_HANGUP":
+//             {
+//                 console.log("CHANNEL HANGUP EVENT", evt);
+//                 break;
+//             }
 
-        default:
-            break;
-    }
-}
+//         default:
+//             break;
+//     }
+// }
