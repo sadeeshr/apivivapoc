@@ -247,9 +247,10 @@ function handleResponseCode(called, data = "", cb) {
 
 function dialResponseFeeder(data = "", inbound, cb) {
     let phone = data.split(",")
+    let dialing_number = phone[0]
     let destination = phone.map(num => `sofia/gateway/${gateway}/91${num.substr(-10, 10)}`)
     let actions = []
-    let url = baseUrl + '/' + statusBaseFile + '?transactionid=${uuid}&agent_number=${destination_number}&agent_status_id='
+    let url = baseUrl + '/' + statusBaseFile + '?transactionid=${uuid}&agent_number=' + dialing_number + '&agent_status_id='
 
     actions.push(generateAction("answer")) //pre_answer
     // actions.push(generateAction("set", "instant_ringback=true"))
@@ -261,8 +262,8 @@ function dialResponseFeeder(data = "", inbound, cb) {
     actions.push(generateAction("set", "hangup_after_bridge=true"));
     actions.push(generateAction("set", "continue_on_fail=true"));
     actions.push(generateAction("set", "media_bug_answer_req=true"));
-    actions.push(generateAction("set", `api_after_bridge=curl ${url}5`, true));           // set BUSY
-    actions.push(generateAction("set", `api_hangup_hook=curl ${url}4`, true));            // set FREE
+    actions.push(generateAction("set", `api_after_bridge=bgsystem '/usr/bin/curl ${url}5'`, true));           // set BUSY
+    actions.push(generateAction("set", `api_hangup_hook=bgsystem '/usr/bin/curl ${url}4'`, true));            // set FREE
     actions.push(generateAction("export", "nolocal:api_on_answer=uuid_setvar ${uuid} agent_answered_time ${strepoch()}"));
 
     if (inbound) actions.push(generateAction("set", `exec_after_bridge_app=ivr`));               // C-SAT IVR
