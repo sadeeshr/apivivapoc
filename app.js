@@ -256,13 +256,13 @@ function dialResponseFeeder(data = "", inbound, cb) {
     actions.push(generateAction("set", "ringback=${in-ring}"));
     // actions.push(generateAction("set", "ignore_early_media=true"));
     // actions.push(generateAction("set", "call_timeout=30"));
-    actions.push(generateAction("set", "session_in_hangup_hook=true"), true);
+    actions.push(generateAction("set", "session_in_hangup_hook=true", true));
 
     actions.push(generateAction("set", "hangup_after_bridge=true"));
     actions.push(generateAction("set", "continue_on_fail=true"));
     actions.push(generateAction("set", "media_bug_answer_req=true"));
-    actions.push(generateAction("set", `api_after_bridge=curl ${url}5`), true);           // set BUSY
-    actions.push(generateAction("set", `api_hangup_hook=curl ${url}4`), true);            // set FREE
+    actions.push(generateAction("set", `api_after_bridge=curl ${url}5`, true));           // set BUSY
+    actions.push(generateAction("set", `api_hangup_hook=curl ${url}4`, true));            // set FREE
     actions.push(generateAction("export", "nolocal:api_on_answer=uuid_setvar ${uuid} agent_answered_time ${strepoch()}"));
 
     if (inbound) actions.push(generateAction("set", `exec_after_bridge_app=ivr`));               // C-SAT IVR
