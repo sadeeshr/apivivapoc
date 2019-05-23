@@ -262,8 +262,8 @@ function dialResponseFeeder(data = "", inbound, cb) {
     actions.push(generateAction("set", "hangup_after_bridge=true"));
     actions.push(generateAction("set", "continue_on_fail=true"));
     actions.push(generateAction("set", "media_bug_answer_req=true"));
-    actions.push(generateAction("set", `api_after_bridge=bgsystem '/usr/bin/curl ${url}5'`, true));           // set BUSY
-    actions.push(generateAction("set", `api_hangup_hook=bgsystem '/usr/bin/curl ${url}4'`, true));            // set FREE
+    actions.push(generateAction("set", `api_after_bridge=bg_system '/usr/bin/curl ${url}5'`, true));           // set BUSY
+    actions.push(generateAction("set", `api_hangup_hook=bg_system '/usr/bin/curl ${url}4'`, true));            // set FREE
     actions.push(generateAction("export", "nolocal:api_on_answer=uuid_setvar ${uuid} agent_answered_time ${strepoch()}"));
 
     if (inbound) actions.push(generateAction("set", `exec_after_bridge_app=ivr`));               // C-SAT IVR
