@@ -296,8 +296,9 @@ function voiceResponseFeeder(data = "", inbound, cb) {
 function ivrResponseFeeder(voiceMessage, keyPressValue, purpose, inbound, cb) {
     let actions = []
     let invalid = "ivr/ivr-that_was_an_invalid_entry.wav"
+    let silence = "silence_stream://300"   // 300 ms
     // let data = `1 1 3 3000 # ${voiceMessage} ${invalid} key_press [${keyPressValue}]`
-    let data = `1 1 3 3000 # ${voiceMessage}  key_press [${keyPressValue}]`
+    let data = `1 1 3 3000 # ${voiceMessage} ${silence} key_press [${keyPressValue}]`
 
     actions.push(generateAction("set", "media_bug_answer_req=true"));
     actions.push(generateAction("answer"))
