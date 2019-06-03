@@ -2,10 +2,21 @@ local http_request = require "http.request"
 local stringy = require "stringy"
 local neturl = require "net.url"
 
+local baseUrl = "https://labtest.gofrugal.com/call_center"
+local baseFile = "cloudCall.php"
+local statusBaseFile = "cloudCallAgentStatusUpdate.php"
+
+local welcomeMessage = "https://download.gofrugal.com/ivr/AudioFiles/welcome-to-gft-I.wav"
+local gateway = "VIVA"
+
 function printTable(data)
     for k, v in pairs(data) do
         freeswitch.consoleLog("debug", k .. " : " .. v)
     end
+end
+
+function console(data)
+    freeswitch.consoleLog("debug", data)
 end
 
 function ivrHandler(session, audio)
@@ -56,9 +67,34 @@ function executeUrl(url)
     return res
 end
 
-local crmres =
-    executeUrl(
-    "https://labtest.gofrugal.com/call_center/cloudCall.php?caller=9880647468&transactionid=d580a659-4bd3-4d4c-878b-06d99685fb7a&called=914466455978&call_type=IC&location=tamilnadu&pin=1"
-)
-freeswitch.consoleLog("debug", crmres["voiceMessage"])
-ivrHandler(session, crmres["voiceMessage"])
+printTable(session)
+
+session:answer()
+
+while (session:ready() == true) do
+    local caller = session:getVariable("caller_id_number")
+    local called = session:getVariable("destination_number")
+    local uuid = session:getVariable("uuid")
+
+    session:getVariable("caller_id_num")
+    local caller = session:getVariable("caller_id_num")
+    local url =
+        baseUrl ..
+        baseFile ..
+            "?caller=" ..
+                caller .. "&transactionid=" .. uuid .. "&called=" .. called .. "&call_type=IC&location=tamilnadu&pin=1"
+    local crmres = executeUrl(url)
+
+    if crmres["code"] == "200" then
+        console("dial handler")
+    elseif crmres["code"] == "201" then
+        console("ivr handler")
+        ivrHandler(session, crmres["voiceMessage"])
+    else
+        console("playback handler")
+        session:execute("playback", crmres["voiceMessage"])
+    end
+    session:hangup()
+end
+
+--local crmres ="https://labtest.gofrugal.com/call_center/cloudCall.php?caller=9880647468&transactionid=d580a659-4bd3-4d4c-878b-06d99685fb7a&called=914466455978&call_type=IC&location=tamilnadu&pin=1"
