@@ -54,7 +54,7 @@ end
 function executeUrl(url)
     local req = http_request.new_from_uri(url)
     local req_timeout = 10
-    req.headers:upsert(":X-Api-Key", "e72bb2cb-4003-4e93-ba6a-abaf59a2615b")
+    req.headers:upsert("X-Api-Key", "e72bb2cb-4003-4e93-ba6a-abaf59a2615b")
     local headers, stream = req:go(req_timeout)
     local body, err = stream:get_body_as_string()
     if headers:get ":status" ~= "200" then
