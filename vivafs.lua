@@ -75,9 +75,6 @@ while (session:ready() == true) do
     local caller = session:getVariable("caller_id_number")
     local called = session:getVariable("destination_number")
     local uuid = session:getVariable("uuid")
-
-    session:getVariable("caller_id_num")
-    local caller = session:getVariable("caller_id_num")
     local url =
         baseUrl ..
         baseFile ..
