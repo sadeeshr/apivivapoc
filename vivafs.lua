@@ -67,8 +67,6 @@ function executeUrl(url)
     return res
 end
 
-printTable(session)
-
 session:answer()
 
 while (session:ready() == true) do
@@ -80,6 +78,7 @@ while (session:ready() == true) do
         baseFile ..
             "?caller=" ..
                 caller .. "&transactionid=" .. uuid .. "&called=" .. called .. "&call_type=IC&location=tamilnadu&pin=1"
+    console(url)
     local crmres = executeUrl(url)
 
     if crmres["code"] == "200" then
