@@ -75,9 +75,11 @@ while (session:ready() == true) do
     local uuid = session:getVariable("uuid")
     local url =
         baseUrl ..
-        baseFile ..
-            "?caller=" ..
-                caller .. "&transactionid=" .. uuid .. "&called=" .. called .. "&call_type=IC&location=tamilnadu&pin=1"
+        "/" ..
+            baseFile ..
+                "?caller=" ..
+                    caller ..
+                        "&transactionid=" .. uuid .. "&called=" .. called .. "&call_type=IC&location=tamilnadu&pin=1"
     console(url)
     local crmres = executeUrl(url)
 
