@@ -243,7 +243,7 @@ session:answer()
 
 while (session:ready() == true) do
     local called = session:getVariable("destination_number")
-
+    session:execute("info", "notice")
     session:setVariable("media_bug_answer_req", "true")
     session:execute("record_session", "$${recordings_dir}/${uuid}.mp3")
 
