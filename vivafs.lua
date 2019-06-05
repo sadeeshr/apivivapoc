@@ -97,6 +97,7 @@ function ivrHandler(audio, dtmf, purpose)
         elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
             ivrSuccessHandler(purpose, digits)
         else
+            session:consoleLog("info", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
             session:execute("playback", invalid)
             digits = getDigits(audio, dtmf)
             if (isempty(digits)) then
@@ -110,6 +111,7 @@ function ivrHandler(audio, dtmf, purpose)
     elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
         ivrSuccessHandler(purpose, digits)
     else
+        session:consoleLog("info", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
         session:execute("playback", invalid)
         digits = getDigits(audio, dtmf)
         if isempty(digits) then
@@ -124,6 +126,7 @@ function ivrHandler(audio, dtmf, purpose)
         elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
             ivrSuccessHandler(purpose, digits)
         else
+            session:consoleLog("info", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
             session:execute("playback", invalid)
             digits = getDigits(audio, dtmf)
             if (isempty(digits)) then
@@ -143,8 +146,9 @@ function handleResponse(response)
     local voiceMessage = response["voiceMessage"]
     local keyPressValue = response["keyPressValue"]
     local purpose = response["purpose"]
+    local uuid = session:getVariable("uuid")
 
-    session:consoleLog("info", "CODE: " .. code .. type(code) .. "\n")
+    -- session:consoleLog("info", "CODE: " .. code .. "TYPE: " .. type(code) .. "\n")
     if code == "200" then
         console("dial handler")
         local number = string.sub(dial, -10)
