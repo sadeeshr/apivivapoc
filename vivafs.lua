@@ -37,12 +37,12 @@ function dialHandler(destination, uuid, number)
     local url =
         baseUrl ..
         "/cloudCallAgentStatusUpdate.php?transactionid=" .. uuid .. "&agent_number=" .. number .. "&agent_status_id="
-    executeUrl(url .. "4", false)
+    executeUrl(url .. "5", false)
     -- session:setHangupHook("surveyHandler", url .. "5")
     session:execute("bridge", destination)
     local cause = session:hangupCause()
     freeswitch.consoleLog("info", "call => hangupCause() = " .. cause)
-    executeUrl(url .. "5", false)
+    executeUrl(url .. "4", false)
     session:execute("hangup")
     -- executeUrl(url .. "5", false)
     -- local call = freeswitch.Session(destination)
