@@ -44,6 +44,7 @@ function dialHandler(destination, uuid, number)
     if call:ready() then
         -- session:execute("hangup")
         -- Do something good here
+        freeswitch.bridge(call, session)
         call:setHangupHook("surveyHandler", "survey")
     else -- This means the call was not answered ... Check for the reason
         local cause = call:hangupCause()
@@ -243,7 +244,7 @@ session:answer()
 
 while (session:ready() == true) do
     local originated_legs = session:getVariable("originated_legs")
-    session:execute("info", "notice")
+    -- session:execute("info", "notice")
     session:setVariable("media_bug_answer_req", "true")
     session:execute("record_session", "$${recordings_dir}/${uuid}.mp3")
 
