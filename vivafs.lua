@@ -64,8 +64,7 @@ function dialHandler(destination, uuid, number)
 end
 
 function getDigits(audio, dtmf)
-    local invalid = "ivr/ivr-that_was_an_invalid_entry.wav"
-    digits = session:playAndGetDigits(1, 1, 1, 3000, "", audio, invalid, "[" .. dtmf .. "]", "key_press")
+    digits = session:playAndGetDigits(1, 1, 1, 3000, "", audio, "", "[" .. dtmf .. "]", "key_press")
     session:consoleLog("info", "Got DTMF digits: " .. digits .. "\n")
     return digits
 end
