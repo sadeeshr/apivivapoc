@@ -74,14 +74,19 @@ function ivrHandler(audio, dtmf, purpose)
         digits = session:read(1, 1, audio, 3000, "#")
         retries = retries - 1
         if
-            retries > 0 and
+            not (isempty(digits)) and retries > 0 and
                 not (tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]))
          then
             session:execute("playback", invalid)
         end
         session:consoleLog("info", "Got dtmf: " .. digits .. "\n")
-    until retries == 0 or tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2])
-    if tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+    until retries == 0 or
+        not (isempty(digits)) and tonumber(digits) >= tonumber(digitsRange[1]) and
+            tonumber(digits) <= tonumber(digitsRange[2])
+    if
+        not (isempty(digits)) and tonumber(digits) >= tonumber(digitsRange[1]) and
+            tonumber(digits) <= tonumber(digitsRange[2])
+     then
         session:setVariable("ivr_purpose", purpose)
         session:setVariable("key_press", digits)
         execAPI_3(purpose, digits)
