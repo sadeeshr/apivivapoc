@@ -45,7 +45,7 @@ function dialHandler(destination, uuid, number)
         -- session:execute("hangup")
         -- Do something good here
         -- freeswitch.bridge(call, session)
-        -- call:setHangupHook("surveyHandler", "survey")
+        call:setHangupHook("surveyHandler", "survey")
     else -- This means the call was not answered ... Check for the reason
         local cause = call:hangupCause()
         freeswitch.consoleLog("info", "call => hangupCause() = " .. cause)
@@ -243,7 +243,7 @@ end
 session:answer()
 
 while (session:ready() == true) do
-    local originated_legs = session:getVariable("originated_legs")
+    -- local originated_legs = session:getVariable("originated_legs")
     -- session:execute("info", "notice")
     session:setVariable("media_bug_answer_req", "true")
     session:execute("record_session", "$${recordings_dir}/${uuid}.mp3")
@@ -252,9 +252,9 @@ while (session:ready() == true) do
         session:execute("playback", welcomeMessage)
     end
 
-    if originated_legs then
-        session:consoleLog("info", "Originated SESSION, DONT run API" .. "\n")
-    else
-        execAPI_1()
-    end
+    -- if originated_legs then
+    --     session:consoleLog("info", "Originated SESSION, DONT run API" .. "\n")
+    -- else
+    execAPI_1()
+    -- end
 end
