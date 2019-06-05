@@ -248,18 +248,18 @@ end
 session:answer()
 -- end
 
-while (session:ready() == true and session:bridged() == false) do
-    -- session:execute("info", "notice")
-    session:setVariable("media_bug_answer_req", "true")
-    session:execute("record_session", "$${recordings_dir}/${uuid}.mp3")
+-- while (session:ready() == true and session:bridged() == false) do
+-- session:execute("info", "notice")
+session:setVariable("media_bug_answer_req", "true")
+session:execute("record_session", "$${recordings_dir}/${uuid}.mp3")
 
-    if (called == "914466455977") then
-        session:execute("playback", welcomeMessage)
-    end
-
-    -- if originated_legs then
-    --     session:consoleLog("info", "Originated SESSION, DONT run API" .. "\n")
-    -- else
-    execAPI_1()
-    -- end
+if (called == "914466455977") then
+    session:execute("playback", welcomeMessage)
 end
+
+-- if originated_legs then
+--     session:consoleLog("info", "Originated SESSION, DONT run API" .. "\n")
+-- else
+execAPI_1()
+-- end
+-- end
