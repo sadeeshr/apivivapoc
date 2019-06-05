@@ -34,11 +34,10 @@ function dialHandler(destination, uuid, number)
     session:setVariable("continue_on_fail", "true")
     session:setVariable("media_bug_answer_req", "true")
 
-    executeUrl(url .. "4", false)
-
     local url =
         baseUrl ..
         "/cloudCallAgentStatusUpdate.php?transactionid=" .. uuid .. "&agent_number=" .. number .. "&agent_status_id="
+    executeUrl(url .. "4", false)
     local call = freeswitch.Session(destination, session)
 
     -- Check to see if the call was answered
