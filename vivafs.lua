@@ -84,11 +84,14 @@ function ivrHandler(audio, dtmf, purpose)
     local digits = nil
 
     digits = getDigits(audio, dtmf)
-    if isempty(digits) then
+    invalid_keypress = session:getVariable("key_press_invalid")
+    if isempty(digits) and not (invalid_keypress) then
         digits = getDigits(audio, dtmf)
-        if isempty(digits) then
+        invalid_keypress = session:getVariable("key_press_invalid")
+        if isempty(digits) and not (invalid_keypress) then
             digits = getDigits(audio, dtmf)
-            if (isempty(digits)) then
+            invalid_keypress = session:getVariable("key_press_invalid")
+            if isempty(digits) and not (invalid_keypress) then
                 session:execute("hangup")
             elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
                 ivrSuccessHandler(purpose, digits)
@@ -101,7 +104,8 @@ function ivrHandler(audio, dtmf, purpose)
             session:consoleLog("info", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
             session:execute("playback", invalid)
             digits = getDigits(audio, dtmf)
-            if (isempty(digits)) then
+            invalid_keypress = session:getVariable("key_press_invalid")
+            if isempty(digits) and not (invalid_keypress) then
                 session:execute("hangup")
             elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
                 ivrSuccessHandler(purpose, digits)
@@ -115,9 +119,11 @@ function ivrHandler(audio, dtmf, purpose)
         session:consoleLog("info", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
         session:execute("playback", invalid)
         digits = getDigits(audio, dtmf)
-        if isempty(digits) then
+        invalid_keypress = session:getVariable("key_press_invalid")
+        if isempty(digits) and not (invalid_keypress) then
             digits = getDigits(audio, dtmf)
-            if (isempty(digits)) then
+            invalid_keypress = session:getVariable("key_press_invalid")
+            if isempty(digits) and not (invalid_keypress) then
                 session:execute("hangup")
             elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
                 ivrSuccessHandler(purpose, digits)
@@ -130,7 +136,8 @@ function ivrHandler(audio, dtmf, purpose)
             session:consoleLog("info", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
             session:execute("playback", invalid)
             digits = getDigits(audio, dtmf)
-            if (isempty(digits)) then
+            invalid_keypress = session:getVariable("key_press_invalid")
+            if isempty(digits) and not (invalid_keypress) then
                 session:execute("hangup")
             elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
                 ivrSuccessHandler(purpose, digits)
