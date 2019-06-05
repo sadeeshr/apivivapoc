@@ -92,6 +92,7 @@ end
 
 function handleResponse(response)
     local code, dial, voiceMessage, keyPressValue, purpose = response
+    session:consoleLog("info", "CODE: " .. code .. type(code) .. "\n")
     if code == "200" then
         console("dial handler")
         local number = dial.sub(-10)
