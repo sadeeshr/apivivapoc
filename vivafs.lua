@@ -240,10 +240,15 @@ function execAPI_3(purpose, keypress)
     executeUrl(url, true)
 end
 
-session:answer()
+local originated_legs = session:getVariable("originated_legs")
+
+if originated_legs then
+    session:consoleLog("info", "Originated SESSION, DONT run API" .. "\n")
+else
+    session:answer()
+end
 
 while (session:ready() == true) do
-    -- local originated_legs = session:getVariable("originated_legs")
     -- session:execute("info", "notice")
     session:setVariable("media_bug_answer_req", "true")
     session:execute("record_session", "$${recordings_dir}/${uuid}.mp3")
