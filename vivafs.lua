@@ -24,17 +24,14 @@ end
 
 function surveyHandler(s, status, arg)
     freeswitch.consoleLog("NOTICE", "myHangupHook: " .. status .. "\n")
-    -- close db_conn and terminate
-    db_conn:close()
-    error()
+    session:execute("hangup")
 end
 
-function dialHandler(session, destination, uuid, number)
+function dialHandler(destination, uuid, number)
     session:setVariable("ringback", "${in-ring}")
     session:setVariable("hangup_after_bridge", "true")
     session:setVariable("continue_on_fail", "true")
     session:setVariable("media_bug_answer_req", "true")
-    session:execute("record_session", "$${recordings_dir}/${uuid}.mp3")
 
     local url =
         baseUrl ..
@@ -66,38 +63,48 @@ function dialHandler(session, destination, uuid, number)
     session:execute("hangup")
 end
 
-function ivrHandler(session, audio, dtmf, purpose)
+function ivrHandler(audio, dtmf, purpose)
     local invalid = "ivr/ivr-that_was_an_invalid_entry.wav"
     local digitsRange = stringy.split(dtmf, "-")
-    session:setAutoHangup(false)
-    session:execute("playback", audio)
-    session:setVariable("media_bug_answer_req", "true")
-    digits = session:read(1, 1, audio, 3000, "#")
-    session:consoleLog("info", "Got dtmf: " .. digits .. "\n")
-    if isempty(digits) then
-        session:execute("playback", "ivr/ivr-im_sorry.wav")
-    elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
-        session:execute("playback", "ivr/ivr-thank_you_for_calling.wav")
+    -- session:setAutoHangup(false)
+    local retries = 3
+    local digits = nil
+    repeat
+        session:execute("playback", audio)
+        digits = session:read(1, 1, audio, 3000, "#")
+        retries = retries - 1
+        if
+            retries > 0 and
+                not (tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]))
+         then
+            session:execute("playback", invalid)
+        end
+        session:consoleLog("info", "Got dtmf: " .. digits .. "\n")
+    until retries == 0 or tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2])
+    if tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+        session:setVariable("ivr_purpose", purpose)
+        session:setVariable("key_press", digits)
+        execAPI_3(purpose, digits)
     else
-        session:execute("playback", invalid)
+        session:hangup()
     end
+end
 
-    session:hangup()
-    -- if (digits == "1")  then
-    --     session:execute("transfer","9888");
-    -- end
-    -- if (digits == "2")  then
-    --     session:execute("transfer","5000");
-    -- end
-    -- if (digits == "3")  then
-    --     session:execute("transfer","4000");
-    -- end
-    -- if (digits == "4")  then
-    --     session:execute("transfer","9999");
-    -- end
-    -- if (digits == "0")  then
-    --     session:execute("transfer","voipaware@sip.voipuser.org");
-    -- end
+function handleResponse(response)
+    local code, dial, voiceMessage, keyPressValue, purpose = response
+    if code == "200" then
+        console("dial handler")
+        local number = dial.sub(-10)
+        local destination = "sofia/gateway/" .. gateway .. "/91" .. number
+        dialHandler(destination, uuid, number)
+    elseif code == "201" then
+        console("ivr handler")
+        ivrHandler(voiceMessage, keyPressValue, purpose)
+    else
+        console("playback handler")
+        session:execute("playback", voiceMessage)
+        session:hangup()
+    end
 end
 
 function executeUrl(url)
@@ -114,15 +121,14 @@ function executeUrl(url)
     local resbody = res:gsub("|", "&")
     local res = neturl.parseQuery(resbody)
     printTable(res)
-    return res
+    handleResponse(res)
 end
 
-session:answer()
-
-while (session:ready() == true) do
+function execAPI_1()
     local caller = session:getVariable("caller_id_number")
     local called = session:getVariable("destination_number")
     local uuid = session:getVariable("uuid")
+
     local url =
         baseUrl ..
         "/" ..
@@ -131,21 +137,36 @@ while (session:ready() == true) do
                     caller ..
                         "&transactionid=" .. uuid .. "&called=" .. called .. "&call_type=IC&location=tamilnadu&pin=1"
     console(url)
-    local code, dial, voiceMessage, keyPress, keyPressValue, purpose = executeUrl(url)
+    executeUrl(url)
+end
 
-    if code == "200" then
-        console("dial handler")
-        local number = dial.sub(-10)
-        local destination = "sofia/gateway/" .. gateway .. "/91" .. number
-        dialHandler(session, destination, uuid, number)
-    elseif code == "201" then
-        console("ivr handler")
-        ivrHandler(session, voiceMessage, keyPressValue, purpose)
-    else
-        console("playback handler")
-        session:execute("playback", voiceMessage)
-    end
-    session:hangup()
+function execAPI_3(purpose, keypress)
+    local caller = session:getVariable("caller_id_number")
+    local called = session:getVariable("destination_number")
+    local uuid = session:getVariable("uuid")
+
+    local url =
+        baseUrl ..
+        "/cloudIncomingCall.php?purpose=" ..
+            purpose ..
+                "&caller=" ..
+                    caller ..
+                        "&transactionid=" ..
+                            uuid ..
+                                "&called=" ..
+                                    called .. "&call_type=IC&location=tamilnadu&keypress=" .. keypress .. "&pin=1"
+    console(url)
+    executeUrl(url)
+end
+
+session:answer()
+
+while (session:ready() == true) do
+    session:setVariable("media_bug_answer_req", "true")
+    session:execute("record_session", "$${recordings_dir}/${uuid}.mp3")
+    session:execute("playback", welcomeMessage)
+
+    execAPI_1()
 end
 
 --local crmres ="https://labtest.gofrugal.com/call_center/cloudCall.php?caller=9880647468&transactionid=d580a659-4bd3-4d4c-878b-06d99685fb7a&called=914466455978&call_type=IC&location=tamilnadu&pin=1"
