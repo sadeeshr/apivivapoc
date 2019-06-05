@@ -22,8 +22,8 @@ function isempty(s)
     return s == nil or s == ""
 end
 
-function surveyHandler(s, status, url)
-    freeswitch.consoleLog("NOTICE", "HangupHook: " .. status .. "\n")
+function surveyHandler(s, url)
+    freeswitch.consoleLog("NOTICE", "HangupHook: " .. url .. "\n")
     executeUrl(url, false)
     session:execute("hangup")
 end
@@ -38,12 +38,12 @@ function dialHandler(destination, uuid, number)
         baseUrl ..
         "/cloudCallAgentStatusUpdate.php?transactionid=" .. uuid .. "&agent_number=" .. number .. "&agent_status_id="
     executeUrl(url .. "4", false)
-    session:setHangupHook("surveyHandler", url .. "5")
+    -- session:setHangupHook("surveyHandler", url .. "5")
     session:execute("bridge", destination)
     local cause = session:hangupCause()
     freeswitch.consoleLog("info", "call => hangupCause() = " .. cause)
-    -- executeUrl(url .. "5", false)
-    -- session:execute("hangup")
+    executeUrl(url .. "5", false)
+    session:execute("hangup")
     -- executeUrl(url .. "5", false)
     -- local call = freeswitch.Session(destination)
 
