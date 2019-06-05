@@ -38,7 +38,7 @@ function dialHandler(destination, uuid, number)
         "/cloudCallAgentStatusUpdate.php?transactionid=" .. uuid .. "&agent_number=" .. number .. "&agent_status_id="
     local call = freeswitch.Session(destination, session)
 
-    executeUrl(url .. "4")
+    executeUrl(url .. "4", false)
 
     -- Check to see if the call was answered
     if call:ready() then
@@ -58,7 +58,7 @@ function dialHandler(destination, uuid, number)
         end
     end
 
-    executeUrl(url .. "5")
+    executeUrl(url .. "5", false)
 
     session:execute("hangup")
 end
@@ -164,7 +164,7 @@ function handleResponse(response)
     end
 end
 
-function executeUrl(url)
+function executeUrl(url, checkRes)
     freeswitch.consoleLog("debug", url .. "\n")
     local req = http_request.new_from_uri(url)
     local req_timeout = 10
@@ -175,11 +175,14 @@ function executeUrl(url)
         error(body)
     end
     freeswitch.consoleLog("debug", body .. "\n")
-    body = "code=" .. body
-    local resbody = body:gsub("|", "&")
-    local res = neturl.parseQuery(resbody)
-    printTable(res)
-    handleResponse(res)
+
+    if checkRes then
+        body = "code=" .. body
+        local resbody = body:gsub("|", "&")
+        local res = neturl.parseQuery(resbody)
+        printTable(res)
+        handleResponse(res)
+    end
 end
 
 function execAPI_1()
@@ -195,7 +198,7 @@ function execAPI_1()
                     caller ..
                         "&transactionid=" .. uuid .. "&called=" .. called .. "&call_type=IC&location=tamilnadu&pin=1"
     console(url)
-    executeUrl(url)
+    executeUrl(url, true)
 end
 
 function execAPI_3(purpose, keypress)
@@ -214,7 +217,7 @@ function execAPI_3(purpose, keypress)
                                 "&called=" ..
                                     called .. "&call_type=IC&location=tamilnadu&keypress=" .. keypress .. "&pin=1"
     console(url)
-    executeUrl(url)
+    executeUrl(url, true)
 end
 
 session:answer()
