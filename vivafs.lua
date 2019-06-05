@@ -44,8 +44,8 @@ function dialHandler(destination, uuid, number)
     if call:ready() then
         -- session:execute("hangup")
         -- Do something good here
-        -- freeswitch.bridge(call, session)
-        call:setHangupHook("surveyHandler", "survey")
+        freeswitch.bridge(call, session)
+        -- call:setHangupHook("surveyHandler", "survey")
     else -- This means the call was not answered ... Check for the reason
         local cause = call:hangupCause()
         freeswitch.consoleLog("info", "call => hangupCause() = " .. cause)
