@@ -251,5 +251,7 @@ while (session:ready() == true) do
         session:execute("playback", welcomeMessage)
     end
 
-    execAPI_1()
+    if (called == "914466455977") or (called == "914466455978") then
+        execAPI_1()
+    end
 end
