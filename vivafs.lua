@@ -119,7 +119,7 @@ function executeUrl(url)
     end
     freeswitch.consoleLog("debug", body .. "\n")
     body = "code=" .. body
-    local resbody = res:gsub("|", "&")
+    local resbody = body:gsub("|", "&")
     local res = neturl.parseQuery(resbody)
     printTable(res)
     handleResponse(res)
