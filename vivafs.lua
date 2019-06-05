@@ -63,32 +63,77 @@ function dialHandler(destination, uuid, number)
     session:execute("hangup")
 end
 
+function getDigits(audio, dtmf)
+    digits = session:playAndGetDigits(1, 1, 1, 3000, "", audio, "", "[" .. dtmf .. "]", "key_press")
+    session:consoleLog("info", "Got DTMF digits: " .. digits .. "\n")
+    return digits
+end
+
+function ivrSuccessHandler(purpose, digits)
+    session:setVariable("ivr_purpose", purpose)
+    session:setVariable("key_press", digits)
+    execAPI_3(purpose, digits)
+end
+
 function ivrHandler(audio, dtmf, purpose)
     local invalid = "ivr/ivr-that_was_an_invalid_entry.wav"
     local digitsRange = stringy.split(dtmf, "-")
     -- session:setAutoHangup(false)
     local retries = 3
     local digits = nil
-    repeat
-        session:execute("playback", audio)
-        digits = session:read(1, 1, audio, 3000, "#")
-        retries = retries - 1
-        if
-            not (isempty(digits)) and retries > 0 and
-                not (tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]))
-         then
+
+    digits = getDigits(audio, dtmf)
+    if isempty(digits) then
+        digits = getDigits(audio, dtmf)
+        if isempty(digits) then
+            digits = getDigits(audio, dtmf)
+            if (isempty(digits)) then
+                session:execute("hangup")
+            elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+                ivrSuccessHandler(purpose, digits)
+            else
+                session:execute("hangup")
+            end
+        elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+            ivrSuccessHandler(purpose, digits)
+        else
             session:execute("playback", invalid)
+            digits = getDigits(audio, dtmf)
+            if (isempty(digits)) then
+                session:execute("hangup")
+            elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+                ivrSuccessHandler(purpose, digits)
+            else
+                session:execute("hangup")
+            end
         end
-        session:consoleLog("info", "Got dtmf: " .. digits .. "\n")
-    until retries == 0 or tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2])
-    if not (isempty(digits)) then
-        if tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
-            session:setVariable("ivr_purpose", purpose)
-            session:setVariable("key_press", digits)
-            execAPI_3(purpose, digits)
-        end
+    elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+        ivrSuccessHandler(purpose, digits)
     else
-        session:hangup()
+        session:execute("playback", invalid)
+        digits = getDigits(audio, dtmf)
+        if isempty(digits) then
+            digits = getDigits(audio, dtmf)
+            if (isempty(digits)) then
+                session:execute("hangup")
+            elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+                ivrSuccessHandler(purpose, digits)
+            else
+                session:execute("hangup")
+            end
+        elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+            ivrSuccessHandler(purpose, digits)
+        else
+            session:execute("playback", invalid)
+            digits = getDigits(audio, dtmf)
+            if (isempty(digits)) then
+                session:execute("hangup")
+            elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+                ivrSuccessHandler(purpose, digits)
+            else
+                session:execute("hangup")
+            end
+        end
     end
 end
 
