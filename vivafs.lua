@@ -38,14 +38,14 @@ function dialHandler(destination, uuid, number)
         baseUrl ..
         "/cloudCallAgentStatusUpdate.php?transactionid=" .. uuid .. "&agent_number=" .. number .. "&agent_status_id="
     executeUrl(url .. "4", false)
-    local call = freeswitch.Session(destination, session)
+    local call = freeswitch.Session(destination)
 
     -- Check to see if the call was answered
     if call:ready() then
+        -- call:setHangupHook("surveyHandler", "survey")
         -- session:execute("hangup")
         -- Do something good here
         freeswitch.bridge(call, session)
-        -- call:setHangupHook("surveyHandler", "survey")
     else -- This means the call was not answered ... Check for the reason
         local cause = call:hangupCause()
         freeswitch.consoleLog("info", "call => hangupCause() = " .. cause)
