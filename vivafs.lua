@@ -148,7 +148,6 @@ function handleResponse(response)
     local purpose = response["purpose"]
     local uuid = session:getVariable("uuid")
 
-    -- session:consoleLog("info", "CODE: " .. code .. "TYPE: " .. type(code) .. "\n")
     if code == "200" then
         console("dial handler")
         local number = string.sub(dial, -10)
@@ -189,14 +188,15 @@ function execAPI_1()
     local caller = session:getVariable("caller_id_number")
     local called = session:getVariable("destination_number")
     local uuid = session:getVariable("uuid")
-
+    local call_type = (called == "914466455977") and "IC" or "OC"
     local url =
         baseUrl ..
         "/" ..
             baseFile ..
                 "?caller=" ..
                     caller ..
-                        "&transactionid=" .. uuid .. "&called=" .. called .. "&call_type=IC&location=tamilnadu&pin=1"
+                        "&transactionid=" ..
+                            uuid .. "&called=" .. called .. "&call_type=" .. call_type .. "&location=tamilnadu&pin=1"
     console(url)
     executeUrl(url, true)
 end
@@ -223,11 +223,14 @@ end
 session:answer()
 
 while (session:ready() == true) do
+    local called = session:getVariable("destination_number")
+
     session:setVariable("media_bug_answer_req", "true")
     session:execute("record_session", "$${recordings_dir}/${uuid}.mp3")
-    session:execute("playback", welcomeMessage)
+
+    if (called == "914466455977") then
+        session:execute("playback", welcomeMessage)
+    end
 
     execAPI_1()
 end
-
---local crmres ="https://labtest.gofrugal.com/call_center/cloudCall.php?caller=9880647468&transactionid=d580a659-4bd3-4d4c-878b-06d99685fb7a&called=914466455978&call_type=IC&location=tamilnadu&pin=1"
