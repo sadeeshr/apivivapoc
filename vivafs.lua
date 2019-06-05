@@ -242,7 +242,7 @@ end
 session:answer()
 
 while (session:ready() == true) do
-    local called = session:getVariable("destination_number")
+    local originated_legs = session:getVariable("originated_legs")
     session:execute("info", "notice")
     session:setVariable("media_bug_answer_req", "true")
     session:execute("record_session", "$${recordings_dir}/${uuid}.mp3")
@@ -251,7 +251,9 @@ while (session:ready() == true) do
         session:execute("playback", welcomeMessage)
     end
 
-    if (called == "914466455977") or (called == "914466455978") then
+    if originated_legs then
+        session:consoleLog("info", "Originated SESSION, DONT run API" .. "\n")
+    else
         execAPI_1()
     end
 end
