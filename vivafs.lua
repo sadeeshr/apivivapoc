@@ -91,7 +91,12 @@ function ivrHandler(audio, dtmf, purpose)
 end
 
 function handleResponse(response)
-    local code, dial, voiceMessage, keyPressValue, purpose = response
+    local code = response["code"]
+    local dial = response["dial"]
+    local voiceMessage = response["voiceMessage"]
+    local keyPressValue = response["keyPressValue"]
+    local purpose = response["purpose"]
+
     session:consoleLog("info", "CODE: " .. code .. type(code) .. "\n")
     if code == "200" then
         console("dial handler")
