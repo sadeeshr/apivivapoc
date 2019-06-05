@@ -147,7 +147,7 @@ function handleResponse(response)
     session:consoleLog("info", "CODE: " .. code .. type(code) .. "\n")
     if code == "200" then
         console("dial handler")
-        local number = dial.sub(-10)
+        local number = string.sub(dial, -10)
         local destination = "sofia/gateway/" .. gateway .. "/91" .. number
         dialHandler(destination, uuid, number)
     elseif code == "201" then
