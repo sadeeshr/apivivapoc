@@ -38,28 +38,34 @@ function dialHandler(destination, uuid, number)
         baseUrl ..
         "/cloudCallAgentStatusUpdate.php?transactionid=" .. uuid .. "&agent_number=" .. number .. "&agent_status_id="
     executeUrl(url .. "4", false)
-    local call = freeswitch.Session(destination)
+    session:setHangupHook("surveyHandler", "survey")
+    session:execute("bridge", destination)
+    local cause = session:hangupCause()
+    freeswitch.consoleLog("info", "call => hangupCause() = " .. cause)
+    executeUrl(url .. "5", false)
+    session:execute("hangup")
+    -- executeUrl(url .. "5", false)
+    -- local call = freeswitch.Session(destination)
 
     -- Check to see if the call was answered
-    if call:ready() then
-        -- call:setHangupHook("surveyHandler", "survey")
-        -- session:execute("hangup")
-        -- Do something good here
-        freeswitch.bridge(call, session)
-    else -- This means the call was not answered ... Check for the reason
-        local cause = call:hangupCause()
-        freeswitch.consoleLog("info", "call => hangupCause() = " .. cause)
-        if (cause == "USER_BUSY") then -- SIP 486
-            -- For BUSY you may reschedule the call for later
-        elseif (cause == "NO_ANSWER") then
-            -- Call them back in an hour
-        elseif (cause == "ORIGINATOR_CANCEL") then -- SIP 487
-            -- May need to check for network congestion or problems
-        else
-            -- Log these issues
-        end
-        executeUrl(url .. "5", false)
-    end
+    -- if call:ready() then
+    -- call:setHangupHook("surveyHandler", "survey")
+    -- session:execute("hangup")
+    -- Do something good here
+    -- freeswitch.bridge(call, session)
+    -- else -- This means the call was not answered ... Check for the reason
+
+    --     if (cause == "USER_BUSY") then -- SIP 486
+    --         -- For BUSY you may reschedule the call for later
+    --     elseif (cause == "NO_ANSWER") then
+    --         -- Call them back in an hour
+    --     elseif (cause == "ORIGINATOR_CANCEL") then -- SIP 487
+    --         -- May need to check for network congestion or problems
+    --     else
+    --         -- Log these issues
+    --     end
+    --     executeUrl(url .. "5", false)
+    -- end
 end
 
 function getDigits(audio, dtmf)
