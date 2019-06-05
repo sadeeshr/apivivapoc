@@ -92,13 +92,17 @@ function ivrHandler(audio, dtmf, purpose)
             invalid_keypress = session:getVariable("key_press_invalid")
             if isempty(digits) and not (invalid_keypress) then
                 session:execute("hangup")
-            elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
-                ivrSuccessHandler(purpose, digits)
+            elseif not (isempty(digits)) then
+                if tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+                    ivrSuccessHandler(purpose, digits)
+                end
             else
                 session:execute("hangup")
             end
-        elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
-            ivrSuccessHandler(purpose, digits)
+        elseif not (isempty(digits)) then
+            if tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+                ivrSuccessHandler(purpose, digits)
+            end
         else
             session:consoleLog("info", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
             session:execute("playback", invalid)
@@ -106,14 +110,18 @@ function ivrHandler(audio, dtmf, purpose)
             invalid_keypress = session:getVariable("key_press_invalid")
             if isempty(digits) and not (invalid_keypress) then
                 session:execute("hangup")
-            elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
-                ivrSuccessHandler(purpose, digits)
+            elseif not (isempty(digits)) then
+                if tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+                    ivrSuccessHandler(purpose, digits)
+                end
             else
                 session:execute("hangup")
             end
         end
-    elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
-        ivrSuccessHandler(purpose, digits)
+    elseif not (isempty(digits)) then
+        if tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+            ivrSuccessHandler(purpose, digits)
+        end
     else
         session:consoleLog("info", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
         session:execute("playback", invalid)
@@ -124,13 +132,17 @@ function ivrHandler(audio, dtmf, purpose)
             invalid_keypress = session:getVariable("key_press_invalid")
             if isempty(digits) and not (invalid_keypress) then
                 session:execute("hangup")
-            elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
-                ivrSuccessHandler(purpose, digits)
+            elseif not (isempty(digits)) then
+                if tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+                    ivrSuccessHandler(purpose, digits)
+                end
             else
                 session:execute("hangup")
             end
-        elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
-            ivrSuccessHandler(purpose, digits)
+        elseif not (isempty(digits)) then
+            if tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+                ivrSuccessHandler(purpose, digits)
+            end
         else
             session:consoleLog("info", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
             session:execute("playback", invalid)
@@ -138,8 +150,10 @@ function ivrHandler(audio, dtmf, purpose)
             invalid_keypress = session:getVariable("key_press_invalid")
             if isempty(digits) and not (invalid_keypress) then
                 session:execute("hangup")
-            elseif tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
-                ivrSuccessHandler(purpose, digits)
+            elseif not (isempty(digits)) then
+                if tonumber(digits) >= tonumber(digitsRange[1]) and tonumber(digits) <= tonumber(digitsRange[2]) then
+                    ivrSuccessHandler(purpose, digits)
+                end
             else
                 session:execute("hangup")
             end
