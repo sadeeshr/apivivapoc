@@ -25,6 +25,7 @@ end
 function surveyHandler(s, url)
     freeswitch.consoleLog("NOTICE", "HangupHook: " .. url .. "\n")
     executeUrl(url, false)
+    session:execute("lua", "vivasurvey.lua")
     session:execute("hangup")
 end
 
@@ -33,7 +34,7 @@ function dialHandler(destination, uuid, number)
     session:setVariable("hangup_after_bridge", "true")
     session:setVariable("continue_on_fail", "true")
     session:setVariable("media_bug_answer_req", "true")
-
+    session:execute("export", "nolocal:execute_on_answer=lua vivautil.lua ${uuid} setTime agent_answered_time")
     local url =
         baseUrl ..
         "/cloudCallAgentStatusUpdate.php?transactionid=" .. uuid .. "&agent_number=" .. number .. "&agent_status_id="
