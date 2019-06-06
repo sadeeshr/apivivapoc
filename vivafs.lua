@@ -196,13 +196,15 @@ function executeUrl(url, checkRes)
     local req_timeout = 10
     req.headers:upsert("X-Api-Key", "e72bb2cb-4003-4e93-ba6a-abaf59a2615b")
     local headers, stream = req:go(req_timeout)
-    local body, err = stream:get_body_as_string()
-    if headers:get ":status" ~= "200" then
-        error(body)
-    end
-    freeswitch.consoleLog("debug", body .. "\n")
 
     if checkRes then
+        local body, err = stream:get_body_as_string()
+        if headers:get ":status" ~= "200" then
+            error(body)
+        end
+
+        freeswitch.consoleLog("debug", body .. "\n")
+
         body = "code=" .. body
         local resbody = body:gsub("|", "&")
         local res = neturl.parseQuery(resbody)
