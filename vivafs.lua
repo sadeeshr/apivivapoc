@@ -25,7 +25,6 @@ end
 function surveyHandler(s, url)
     freeswitch.consoleLog("NOTICE", "HangupHook: " .. url .. "\n")
     executeUrl(url, false)
-    session:execute("lua", "vivasurvey.lua")
     session:execute("hangup")
 end
 
@@ -44,6 +43,7 @@ function dialHandler(destination, uuid, number)
     local cause = session:hangupCause()
     freeswitch.consoleLog("info", "call => hangupCause() = " .. cause)
     executeUrl(url .. "4", false)
+    session:execute("lua", "vivasurvey.lua")
     session:execute("hangup")
     -- executeUrl(url .. "5", false)
     -- local call = freeswitch.Session(destination)
