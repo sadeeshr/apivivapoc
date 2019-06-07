@@ -30,11 +30,11 @@ end
 
 function dialHandler(destination, uuid, number)
     session:setVariable("ringback", "${in-ring}")
-    session:setVariable("hangup_after_bridge", "true")
+    session:setVariable("hangup_after_bridge", "false")
     session:setVariable("continue_on_fail", "true")
     session:setVariable("media_bug_answer_req", "true")
-    session:setVariable("exec_after_bridge_app", "lua")
-    session:setVariable("exec_after_bridge_arg", "vivasurvey.lua")
+    -- session:setVariable("exec_after_bridge_app", "lua")
+    -- session:setVariable("exec_after_bridge_arg", "vivasurvey.lua")
 
     session:execute("export", "nolocal:execute_on_answer=lua vivautil.lua ${uuid} setTime agent_answered_time")
     local url =
@@ -46,10 +46,8 @@ function dialHandler(destination, uuid, number)
     local cause = session:hangupCause()
     freeswitch.consoleLog("info", "call => hangupCause() = " .. cause)
     executeUrl(url .. "4", false)
-    -- session:execute("lua", "vivasurvey.lua")
-    -- session:execute("hangup")
-    -- executeUrl(url .. "5", false)
-    -- local call = freeswitch.Session(destination)
+    session:execute("lua", "vivasurvey.lua")
+    session:execute("hangup")
 
     -- Check to see if the call was answered
     -- if call:ready() then
