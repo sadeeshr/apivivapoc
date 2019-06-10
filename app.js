@@ -156,29 +156,29 @@ function cdrHandler(req, cb) {
     const DIDs = [...inboundDIDs, ...outboundDIDs]
     const { body } = req
     const { variables: cdr } = body
-    let { agent_answered_time, answer_epoch, end_epoch, call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, answersec: ringtime, duration: callDuration, billsec: duration = 0, bridge_channel, sip_hangup_disposition: hangup_direction, key_press = "", csat_key_press } = cdr
+    let { agent_answered_time, answer_epoch, end_epoch, call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, answersec: ringtime, duration = 0, billsec = 0, bridge_channel, sip_hangup_disposition: hangup_direction, key_press = "", csat_key_press } = cdr
     const sendCdr = DIDs.includes(called)
 
     if (sendCdr) {
         console.log(cdr);
-        if (Number(duration) === 0) ringtime = callDuration
+        if (Number(billsec) === 0) ringtime = duration
         if (agent_answered_time) {
             agent_answered_time = Math.round(Number(agent_answered_time) / 1000)
-            duration = Number(end_epoch) - agent_answered_time
+            billsec = Number(end_epoch) - agent_answered_time
             ringtime = (agent_answered_time - Number(answer_epoch)) + ringtime
         }
         baseFile = "cloudCall.php"
         const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
         const hangupfirst = hangup_direction.startsWith("send_") ? called : (dialer || caller)
-        const recording_path = (Number(duration) > 0) ? `http://gofrugaldemo.vivacommunication.com:8080/api/recording/${uuid}` : ""
+        const recording_path = (Number(billsec) > 0) ? `http://gofrugaldemo.vivacommunication.com:8080/api/recording/${uuid}` : ""
 
-        let url = `${baseUrl}/${baseFile}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${dialer}&location=tamilnadu&keypress=${key_press}&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=${recording_path}&hangupfirst=${hangupfirst}&country=IN`
+        let url = `${baseUrl}/${baseFile}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${dialer}&location=tamilnadu&keypress=${key_press}&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&billsec=${billsec}&call_type=CH&recordpath=${recording_path}&hangupfirst=${hangupfirst}&country=IN`
         // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
 
-        if (csat_key_press) {
-            let csat_url = `${baseUrl}/ismile/dsl_submit.php?cloud_call=1&transactionid=${uuid}&keypress=${csat_key_press}&purpose=ticket_rating`
-            execAPI(null, csat_url, res => console.log(res))
-        }
+        // if (csat_key_press) {
+        //     let csat_url = `${baseUrl}/ismile/dsl_submit.php?cloud_call=1&transactionid=${uuid}&keypress=${csat_key_press}&purpose=ticket_rating`
+        //     execAPI(null, csat_url, res => console.log(res))
+        // }
 
         execAPI(null, url, res => { console.log(res); cb(200) })
 
