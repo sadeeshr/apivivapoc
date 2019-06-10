@@ -161,11 +161,12 @@ function cdrHandler(req, cb) {
 
     if (sendCdr) {
         console.log(cdr);
-        if (Number(billsec) === 0) ringtime = duration
+        if (Number(billsec) === 0)
+            ringtime = duration
         if (agent_answered_time) {
             agent_answered_time = Math.round(Number(agent_answered_time) / 1000)
             billsec = Number(end_epoch) - agent_answered_time
-            ringtime = (agent_answered_time - Number(answer_epoch)) + ringtime
+            ringtime = (agent_answered_time - Number(answer_epoch))
         }
         baseFile = "cloudCall.php"
         const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
