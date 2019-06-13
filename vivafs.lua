@@ -33,10 +33,10 @@ function dialHandler(destination, uuid, number)
     session:setVariable("hangup_after_bridge", "false")
     session:setVariable("continue_on_fail", "true")
     session:setVariable("media_bug_answer_req", "true")
-    session:setVariable("exec_after_bridge_app", "lua")
-    session:setVariable("exec_after_bridge_arg", "vivautil.lua ${uuid} setTime agent_hangup_time")
+    -- session:setVariable("exec_after_bridge_app", "lua")
+    -- session:setVariable("exec_after_bridge_arg", "vivautil.lua ${uuid} setTime agent_hangup_time")
 
-    session:execute("export", "nolocal:execute_on_answer=lua vivautil.lua ${uuid} setTime agent_answered_time")
+    session:execute("export", "nolocal:execute_on_answer=lua vivautil.lua " .. uuid .. " setTime agent_answered_time")
     local url =
         baseUrl ..
         "/cloudCallAgentStatusUpdate.php?transactionid=" .. uuid .. "&agent_number=" .. number .. "&agent_status_id="
@@ -45,8 +45,12 @@ function dialHandler(destination, uuid, number)
     session:execute("bridge", destination)
     local cause = session:hangupCause()
     freeswitch.consoleLog("info", "call => hangupCause() = " .. cause)
+    session:execute("lua", "vivautil.lua " .. uuid .. " setTime agent_hangup_time")
     executeUrl(url .. "4", false)
-    session:execute("lua", "vivasurvey.lua")
+    local agent_answered = session:getVariable("agent_answered_time")
+    if agent_answered then
+        session:execute("lua", "vivasurvey.lua")
+    end
     session:execute("hangup")
 
     -- Check to see if the call was answered
