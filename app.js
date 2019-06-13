@@ -156,16 +156,18 @@ function cdrHandler(req, cb) {
     const DIDs = [...inboundDIDs, ...outboundDIDs]
     const { body } = req
     const { variables: cdr } = body
-    let { agent_answered_time, answer_epoch, end_epoch, call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, answersec: ringtime, duration = 0, billsec = 0, bridge_channel, sip_hangup_disposition: hangup_direction, key_press = "", csat_key_press } = cdr
+    let { agent_answered_time, agent_hangup_time, answer_epoch, call_uuid: uuid, sip_from_user: caller, sip_to_user: called, start_epoch: starttime, end_epoch: endtime, answersec: ringtime, duration = 0, billsec = 0, bridge_channel, sip_hangup_disposition: hangup_direction, key_press = "", csat_key_press } = cdr
     const sendCdr = DIDs.includes(called)
 
     if (sendCdr) {
         console.log(cdr);
         if (Number(billsec) === 0)
             ringtime = duration
-        if (agent_answered_time) {
+        if (agent_answered_time && agent_hangup_time) {
             agent_answered_time = Math.round(Number(agent_answered_time) / 1000)
-            billsec = Number(end_epoch) - agent_answered_time
+            agent_hangup_time = Math.round(Number(agent_hangup_time) / 1000)
+            // billsec = Number(end_epoch) - agent_answered_time
+            billsec = agent_hangup_time - agent_answered_time
             ringtime = (agent_answered_time - Number(answer_epoch)) + Number(ringtime)
         }
         baseFile = "cloudCall.php"

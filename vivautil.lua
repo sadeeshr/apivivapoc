@@ -6,7 +6,7 @@ api = freeswitch.API()
 
 if type == "setTime" then
     time = api:getTime()
-    command = "uuid_setvar " .. uuid .. " agent_answered_time " .. time
-    freeswitch.consoleLog("notice", "AGENT ANSWERED TIME: " .. time .. "\n")
+    command = "uuid_setvar " .. uuid .. " " .. name .. " " .. time
+    freeswitch.consoleLog("notice", "SET AGENT EVENT TIME: " .. name .. " " .. time .. "\n")
     api:executeString(command)
 end
