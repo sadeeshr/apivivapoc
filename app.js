@@ -169,11 +169,14 @@ function cdrHandler(req, cb) {
             // billsec = Number(end_epoch) - agent_answered_time
             billsec = agent_hangup_time - agent_answered_time
             ringtime = (agent_answered_time - Number(answer_epoch)) + Number(ringtime)
+        } else {
+            billsec = 0
+            ringtime = duration
         }
         baseFile = "cloudCall.php"
         const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
         const hangupfirst = hangup_direction.startsWith("send_") ? called : (dialer || caller)
-        const recording_path = (Number(billsec) > 0) ? `http://gofrugaldemo.vivacommunication.com:8080/api/recording/${uuid}` : ""
+        const recording_path = (agent_answered_time && agent_hangup_time && (Number(billsec)) > 0) ? `http://gofrugaldemo.vivacommunication.com:8080/api/recording/${uuid}` : ""
 
         let url = `${baseUrl}/${baseFile}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${dialer}&location=tamilnadu&keypress=${key_press}&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&billsec=${billsec}&call_type=CH&recordpath=${recording_path}&hangupfirst=${hangupfirst}&country=IN`
         // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
