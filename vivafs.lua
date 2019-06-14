@@ -187,7 +187,7 @@ function handleResponse(response)
         local number = string.sub(dial, -10)
         local destination = "sofia/gateway/" .. gateway .. "/91" .. number
         dialHandler(destination, uuid, number)
-    elseif code == "201" then
+    elseif (code == "201") or (code == "204") then
         console("ivr handler")
         ivrHandler(voiceMessage, keyPressValue, purpose)
     else
