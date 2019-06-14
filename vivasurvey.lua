@@ -12,7 +12,7 @@ function executeUrl(url)
     local req_timeout = 10
     req.headers:upsert("X-Api-Key", "e72bb2cb-4003-4e93-ba6a-abaf59a2615b")
     local headers, stream = req:go(req_timeout)
-    freeswitch.consoleLog("debug", body .. "\n")
+    -- freeswitch.consoleLog("debug", body .. "\n")
 end
 
 while (session:ready() == true) do
