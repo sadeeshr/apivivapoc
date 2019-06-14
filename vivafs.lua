@@ -29,6 +29,7 @@ function surveyHandler(s, url)
 end
 
 function dialHandler(destination, uuid, number)
+    local called = session:getVariable("destination_number")
     session:setVariable("ringback", "${in-ring}")
     session:setVariable("hangup_after_bridge", "false")
     session:setVariable("continue_on_fail", "true")
