@@ -17,9 +17,21 @@ end
 
 while (session:ready() == true) do
     session:setAutoHangup(false)
-    session:setVariable("playback_terminators", "any")
-    session:execute("playback", "https://download.gofrugal.com/ivr/AudioFiles/main-menu15305384611.wav")
-    digits = session:getDigits(1, "", 3000)
+    -- session:setVariable("playback_terminators", "any")
+    -- session:execute("playback", "https://download.gofrugal.com/ivr/AudioFiles/main-menu15305384611.wav")
+    -- digits = session:getDigits(1, "", 3000)
+    digits =
+        session:playAndGetDigits(
+        1,
+        1,
+        1,
+        3000,
+        "",
+        "https://download.gofrugal.com/ivr/AudioFiles/main-menu15305384611.wav",
+        "",
+        "[1-5]",
+        ""
+    )
 
     if isempty(digits) then
         session:execute("hangup")
