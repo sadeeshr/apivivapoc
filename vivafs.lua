@@ -49,7 +49,7 @@ function dialHandler(destination, uuid, number)
     session:execute("lua", "vivautil.lua " .. uuid .. " setTime agent_hangup_time")
     executeUrl(url .. "4", false)
     local agent_answered = session:getVariable("agent_answered_time")
-    if agent_answered then
+    if (called == "914466455977") and agent_answered then
         session:execute("lua", "vivasurvey.lua")
     end
     session:execute("hangup")

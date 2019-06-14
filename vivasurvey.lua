@@ -17,6 +17,7 @@ end
 
 while (session:ready() == true) do
     session:setAutoHangup(false)
+    session:setVariable("playback_terminators", "any")
     session:execute("playback", "https://download.gofrugal.com/ivr/AudioFiles/main-menu15305384611.wav")
     digits = session:getDigits(1, "", 3000)
 
@@ -28,8 +29,8 @@ while (session:ready() == true) do
             "https://labtest.gofrugal.com/call_center/ismile/dsl_submit.php?cloud_call=1&transactionid=" ..
             uuid .. "&keypress=" .. digits .. "&purpose=ticket_rating"
         -- session:setVariable("csat_key_press", digits)
-        session:execute("playback", "https://download.gofrugal.com/ivr/AudioFiles/star-" .. digits .. ".wav")
         executeUrl(url)
+        session:execute("playback", "https://download.gofrugal.com/ivr/AudioFiles/star-" .. digits .. ".wav")
         session:execute("hangup")
     else
         session:execute("hangup")
