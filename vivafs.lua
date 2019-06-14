@@ -36,6 +36,7 @@ function dialHandler(destination, uuid, number)
     -- session:setVariable("exec_after_bridge_app", "lua")
     -- session:setVariable("exec_after_bridge_arg", "vivautil.lua ${uuid} setTime agent_hangup_time")
 
+    session:execute("export", "nolocal:execute_on_originate=lua vivautil.lua " .. uuid .. " setTime agent_dial_time")
     session:execute("export", "nolocal:execute_on_answer=lua vivautil.lua " .. uuid .. " setTime agent_answered_time")
     local url =
         baseUrl ..
