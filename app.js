@@ -174,7 +174,7 @@ function cdrHandler(req, cb) {
             ringtime = (agent_answered_time - (agent_dial_time || Number(answer_epoch))) + Number(ringtime)
         } else {
             billsec = 0
-            ringtime = Number(end_epoch) - (agent_dial_time || Number(answer_epoch))
+            ringtime = Number(endtime) - (agent_dial_time || Number(answer_epoch))
         }
         baseFile = "cloudCall.php"
         const dialer = bridge_channel ? bridge_channel.split("/").pop() : ""
