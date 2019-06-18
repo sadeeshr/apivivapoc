@@ -95,6 +95,8 @@ function ivrHandler(audio, dtmf, purpose)
     local retries = 3
     local digits = nil
 
+    session:execute("playback", welcomeMessage)
+
     digits = getDigits(audio, dtmf)
     invalid_keypress = session:getVariable("key_press_invalid")
     if isempty(digits) and not (invalid_keypress) then
@@ -269,9 +271,9 @@ session:answer()
 session:setVariable("media_bug_answer_req", "true")
 session:execute("record_session", "$${recordings_dir}/${uuid}.mp3")
 
-if (called == "914466455977") then
-    session:execute("playback", welcomeMessage)
-end
+-- if (called == "914466455977") then
+--     session:execute("playback", welcomeMessage)
+-- end
 
 -- if originated_legs then
 --     session:consoleLog("info", "Originated SESSION, DONT run API" .. "\n")
