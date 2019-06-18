@@ -17,7 +17,7 @@ function executeUrl(url)
 end
 
 function getDigits(audio, dtmf)
-    digits = session:playAndGetDigits(1, 1, 1, 3000, "", audio, "", "[" .. dtmf .. "]", "")
+    digits = session:playAndGetDigits(1, 1, 1, 3000, "", audio, "", "[" .. dtmf .. "]", "survey_key_press")
     session:consoleLog("notice", "Got DTMF digits: " .. digits .. "\n")
     return digits
 end
@@ -41,13 +41,13 @@ function ivrHandler(audio, dtmf)
     local digits = nil
 
     digits = getDigits(audio, dtmf)
-    invalid_keypress = session:getVariable("key_press_invalid")
+    invalid_keypress = session:getVariable("survey_key_press_invalid")
     if isempty(digits) and not (invalid_keypress) then
         digits = getDigits(audio, dtmf)
-        invalid_keypress = session:getVariable("key_press_invalid")
+        invalid_keypress = session:getVariable("survey_key_press_invalid")
         if isempty(digits) and not (invalid_keypress) then
             digits = getDigits(audio, dtmf)
-            invalid_keypress = session:getVariable("key_press_invalid")
+            invalid_keypress = session:getVariable("survey_key_press_invalid")
             if isempty(digits) and not (invalid_keypress) then
                 session:execute("hangup")
             elseif not (isempty(digits)) then
@@ -67,7 +67,7 @@ function ivrHandler(audio, dtmf)
             session:consoleLog("notice", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
             session:execute("playback", invalid)
             digits = getDigits(audio, dtmf)
-            invalid_keypress = session:getVariable("key_press_invalid")
+            invalid_keypress = session:getVariable("survey_key_press_invalid")
             if isempty(digits) and not (invalid_keypress) then
                 session:execute("hangup")
             elseif not (isempty(digits)) then
@@ -88,10 +88,10 @@ function ivrHandler(audio, dtmf)
         session:consoleLog("notice", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
         session:execute("playback", invalid)
         digits = getDigits(audio, dtmf)
-        invalid_keypress = session:getVariable("key_press_invalid")
+        invalid_keypress = session:getVariable("survey_key_press_invalid")
         if isempty(digits) and not (invalid_keypress) then
             digits = getDigits(audio, dtmf)
-            invalid_keypress = session:getVariable("key_press_invalid")
+            invalid_keypress = session:getVariable("survey_key_press_invalid")
             if isempty(digits) and not (invalid_keypress) then
                 session:execute("hangup")
             elseif not (isempty(digits)) then
@@ -111,7 +111,7 @@ function ivrHandler(audio, dtmf)
             session:consoleLog("notice", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
             session:execute("playback", invalid)
             digits = getDigits(audio, dtmf)
-            invalid_keypress = session:getVariable("key_press_invalid")
+            invalid_keypress = session:getVariable("survey_key_press_invalid")
             if isempty(digits) and not (invalid_keypress) then
                 session:execute("hangup")
             elseif not (isempty(digits)) then
