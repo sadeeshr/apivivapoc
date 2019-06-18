@@ -55,6 +55,8 @@ function ivrHandler(audio, dtmf)
                     ivrSuccessHandler(digits)
                 end
             else
+                session:consoleLog("notice", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
+                session:execute("playback", invalid)
                 session:execute("hangup")
             end
         elseif not (isempty(digits)) then
@@ -73,6 +75,8 @@ function ivrHandler(audio, dtmf)
                     ivrSuccessHandler(digits)
                 end
             else
+                session:consoleLog("notice", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
+                session:execute("playback", invalid)
                 session:execute("hangup")
             end
         end
@@ -95,6 +99,8 @@ function ivrHandler(audio, dtmf)
                     ivrSuccessHandler(digits)
                 end
             else
+                session:consoleLog("notice", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
+                session:execute("playback", invalid)
                 session:execute("hangup")
             end
         elseif not (isempty(digits)) then
@@ -113,6 +119,8 @@ function ivrHandler(audio, dtmf)
                     ivrSuccessHandler(digits)
                 end
             else
+                session:consoleLog("notice", "INVALID DTMF: " .. digits .. "PLAY: " .. invalid .. "\n")
+                session:execute("playback", invalid)
                 session:execute("hangup")
             end
         end
