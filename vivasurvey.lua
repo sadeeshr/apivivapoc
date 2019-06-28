@@ -30,7 +30,7 @@ function ivrSuccessHandler(digits)
     -- session:setVariable("csat_key_press", digits)
     session:execute("playback", "https://download.gofrugal.com/ivr/AudioFiles/star-" .. digits .. ".wav")
     session:execute("hangup")
-    freeswitch.msleep(3000)
+    freeswitch.msleep(5000)
     executeUrl(url)
 end
 
@@ -132,6 +132,8 @@ while (session:ready() == true) do
     local audio = "https://download.gofrugal.com/ivr/AudioFiles/main-menu15305384611.wav"
     local keypress = "1-5"
     session:setAutoHangup(false)
+    session:setVariable("hangup_after_bridge", "false")
+    session:setVariable("continue_on_fail", "true")
     ivrHandler(audio, keypress)
 end
 
