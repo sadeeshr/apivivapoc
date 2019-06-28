@@ -28,9 +28,10 @@ function ivrSuccessHandler(digits)
         "https://labtest.gofrugal.com/ismile/dsl_submit.php?cloud_call=1&transactionid=" ..
         uuid .. "&keypress=" .. digits .. "&purpose=ticket_rating"
     -- session:setVariable("csat_key_press", digits)
-    executeUrl(url)
     session:execute("playback", "https://download.gofrugal.com/ivr/AudioFiles/star-" .. digits .. ".wav")
     session:execute("hangup")
+    freeswitch.msleep(3000)
+    executeUrl(url)
 end
 
 function ivrHandler(audio, dtmf)
