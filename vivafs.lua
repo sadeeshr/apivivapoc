@@ -30,7 +30,9 @@ end
 
 function dialHandler(destination, uuid, number)
     local called = session:getVariable("destination_number")
-    session:execute("playback", welcomeMessage)
+    if (called == "914466455977") then
+        session:execute("playback", welcomeMessage)
+    end
 
     session:setVariable("ringback", "${in-ring}")
     session:setVariable("hangup_after_bridge", "false")

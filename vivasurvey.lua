@@ -30,7 +30,8 @@ function ivrSuccessHandler(digits)
     -- session:setVariable("csat_key_press", digits)
     session:execute("playback", "https://download.gofrugal.com/ivr/AudioFiles/star-" .. digits .. ".wav")
     session:execute("hangup")
-    freeswitch.msleep(5000)
+    -- freeswitch.msleep(5000)
+    session:execute("sleep", "5000")
     executeUrl(url)
 end
 
