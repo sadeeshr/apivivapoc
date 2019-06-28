@@ -25,7 +25,7 @@ end
 function ivrSuccessHandler(digits)
     local uuid = session:getVariable("uuid")
     local url =
-        "https://labtest.gofrugal.com/call_center/ismile/dsl_submit.php?cloud_call=1&transactionid=" ..
+        "https://labtest.gofrugal.com/ismile/dsl_submit.php?cloud_call=1&transactionid=" ..
         uuid .. "&keypress=" .. digits .. "&purpose=ticket_rating"
     -- session:setVariable("csat_key_press", digits)
     executeUrl(url)
