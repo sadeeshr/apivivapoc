@@ -29,12 +29,8 @@ function ivrSuccessHandler(digits)
         uuid .. "&keypress=" .. digits .. "&purpose=ticket_rating"
     -- session:setVariable("csat_key_press", digits)
     session:execute("playback", "https://download.gofrugal.com/ivr/AudioFiles/star-" .. digits .. ".wav")
-    session:execute("set_zombie_exec")
     session:execute("hangup")
-    session:execute("set_zombie_exec")
-    -- freeswitch.msleep(5000)
-    session:execute("sleep", "5000")
-    session:execute("set_zombie_exec")
+    freeswitch.msleep(10000)
     executeUrl(url)
 end
 
