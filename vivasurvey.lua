@@ -23,15 +23,15 @@ function getDigits(audio, dtmf)
 end
 
 function ivrSuccessHandler(digits)
-    local uuid = session:getVariable("uuid")
-    local url =
-        "https://labtest.gofrugal.com/ismile/dsl_submit.php?cloud_call=1&transactionid=" ..
-        uuid .. "&keypress=" .. digits .. "&purpose=ticket_rating"
+    -- local uuid = session:getVariable("uuid")
+    -- local url =
+    --     "https://labtest.gofrugal.com/ismile/dsl_submit.php?cloud_call=1&transactionid=" ..
+    --     uuid .. "&keypress=" .. digits .. "&purpose=ticket_rating"
     -- session:setVariable("csat_key_press", digits)
     session:execute("playback", "https://download.gofrugal.com/ivr/AudioFiles/star-" .. digits .. ".wav")
     session:execute("hangup")
-    freeswitch.msleep(10000)
-    executeUrl(url)
+    -- freeswitch.msleep(10000)
+    -- executeUrl(url)
 end
 
 function ivrHandler(audio, dtmf)
