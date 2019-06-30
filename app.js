@@ -184,8 +184,6 @@ function cdrHandler(req, cb) {
         let url = `${baseUrl}/${baseFile}?caller=${caller}&transactionid=${uuid}&called=${called}&dialer=${dialer}&location=tamilnadu&keypress=${key_press}&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&billsec=${billsec}&call_type=CH&recordpath=${recording_path}&hangupfirst=${hangupfirst}&country=IN`
         // let url = `${baseUrl}?caller=${caller}&transactionid=${uuid}&called=${"9876543210"}&dialer=${"9876543210"}&location=tamilnadu&keypress=&starttime=${starttime}&endtime=${endtime}&ringtime=${ringtime}&duration=${duration}&call_type=CH&recordpath=&hangupfirst=${"9876543210"}&country=IN`
 
-
-
         execAPI(null, url, res => {
             console.log(res);
             if (survey_key_press) {
