@@ -187,7 +187,7 @@ function cdrHandler(req, cb) {
         execAPI(null, url, res => {
             console.log(res);
             if (survey_key_press) {
-                let csat_url = `${baseUrl}/ismile/dsl_submit.php?cloud_call=1&transactionid=${uuid}&keypress=${survey_key_press}&purpose=ticket_rating`
+                let csat_url = `https://labtest.gofrugal.com/ismile/dsl_submit.php?cloud_call=1&transactionid=${uuid}&keypress=${survey_key_press}&purpose=ticket_rating`
                 execAPI(null, csat_url, res => console.log(res))
             }
             cb(200);
