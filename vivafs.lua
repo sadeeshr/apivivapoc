@@ -93,13 +93,16 @@ function ivrSuccessHandler(purpose, digits)
 end
 
 function ivrHandler(audio, dtmf, purpose)
+    local called = session:getVariable("destination_number")
     local invalid = "ivr/ivr-that_was_an_invalid_entry.wav"
     local digitsRange = stringy.split(dtmf, "-")
     -- session:setAutoHangup(false)
     local retries = 3
     local digits = nil
 
-    session:execute("playback", welcomeMessage)
+    if (called ~= "914466455977") then
+        session:execute("playback", welcomeMessage)
+    end
 
     digits = getDigits(audio, dtmf)
     invalid_keypress = session:getVariable("key_press_invalid")
