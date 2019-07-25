@@ -286,6 +286,8 @@ session:answer()
 session:setVariable("media_bug_answer_req", "true")
 session:execute("record_session", "$${recordings_dir}/${uuid}.mp3")
 
+local called = session:getVariable("destination_number")
+
 if (called == "914466455977") then
     session:execute("playback", welcomeMessage)
 end
