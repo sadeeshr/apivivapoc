@@ -11,7 +11,7 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "got": "^9.6.0",
+    "got": "^11.8.5",
     "modesl": "^1.2.0",
     "xmlbuilder": "^12.0.0"
   }
